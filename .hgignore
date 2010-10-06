@@ -1,0 +1,9 @@
+syntax: glob
+*.class
+.metadata
+.directory
+*/\${builder}
+**/*~
+
+**/target
+test*.log

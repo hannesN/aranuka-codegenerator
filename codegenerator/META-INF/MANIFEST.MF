@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Genny Code Generator
+Bundle-SymbolicName: de.topicmapslab.aranuka_kuria.codegenerator
+Bundle-Version: 1.0.0.snapshot
+Export-Package: de.topicmapslab.codegenerator;uses:="de.topicmapslab.codegenerator.descriptors",
+ de.topicmapslab.codegenerator.descriptors,
+ de.topicmapslab.codegenerator.descriptors.genny,
+ de.topicmapslab.codegenerator.factories;
+  uses:="de.topicmapslab.codegenerator.descriptors,
+   de.topicmapslab.codegenerator,
+   org.tmapi.core,
+   de.topicmapslab.tmql4j.common.model.runtime",
+ de.topicmapslab.codegenerator.test,
+ de.topicmapslab.codegenerator.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.tmapi.core;version="2.0.2",
+ org.tmapi.index;version="2.0.2",
+ org.tmapix.io
+Require-Bundle: com.sun.codemodel;bundle-version="2.4.0",
+ de.topicmapslab.kuria.annotation;bundle-version="1.0.1",
+ de.topicmapslab.kuria.runtime;bundle-version="1.0.1",
+ aranuka.runtime;bundle-version="1.0.2",
+ de.topicmapslab.tmql4j.tmml.extension;bundle-version="2.6.4",
+ de.topicmapslab.tmql4j;bundle-version="2.6.4",
+ de.topicmapslab.majortom.core;bundle-version="1.1.2",
+ de.topicmapslab.majortom.inmemory;bundle-version="1.1.2",
+ de.topicmapslab.majortom.model;bundle-version="1.1.2"
+ 

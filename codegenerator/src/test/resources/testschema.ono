@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<file id="2431" version="1.0.0" xmlns="onotoa.topicmapslab.de">
+    <schema baseLocator="test:" id="2432">
+        <mappingElement id="2439" key="test" value="http://test.de/schema/"/>
+        <topicType id="2435" kind="TopicType">
+            <annotation key="de.topicmapslab.genny.category" value="Primary Data"/>
+            <name>Person</name>
+            <subjectIdentifier>test:person</subjectIdentifier>
+            <subjectIdentifier>http://en.wikipedia.org/wiki/Person</subjectIdentifier>
+            <nameConstraints>
+                <nameConstraint cardMax="1" cardMin="1" id="2437">
+                    <topictypeRef ref="topictypes.1"/>
+                </nameConstraint>
+                <nameConstraint cardMax="1" cardMin="1" id="2440">
+                    <annotation key="de.topicmapslab.aranuka.name" value="Vorname"/>
+                    <topictypeRef ref="topictypes.2"/>
+                </nameConstraint>
+                <nameConstraint cardMax="*" cardMin="0" id="3214">
+                    <topictypeRef ref="topictypes.22"/>
+                </nameConstraint>
+            </nameConstraints>
+            <occurrenceConstraints>
+                <occurrenceConstraint cardMax="1" cardMin="1" id="2442">
+                    <annotation key="de.topicmapslab.aranuka.name" value="Lebenslauf"/>
+                    <annotation key="de.topicmapslab.kuria.rows" value="10"/>
+                    <topictypeRef ref="topictypes.3"/>
+                </occurrenceConstraint>
+            </occurrenceConstraints>
+            <subjectIdentifierConstraints>
+                <subjectIdentifierConstraint cardMax="1" cardMin="1" id="2436" regExp=".*">
+                    <annotation key="de.topicmapslab.aranuka.generateattribute" value="true"/>
+                    <annotation key="de.topicmapslab.kuria.hidden" value="true"/>
+                    <annotation key="de.topicmapslab.genny.autogenerate" value="true"/>
+                    <annotation key="de.topicmapslab.aranuka.name" value="id"/>
+                </subjectIdentifierConstraint>
+            </subjectIdentifierConstraints>
+        </topicType>
+        <topicType id="2438" kind="NameType" regExp=".*">
+            <name>Firstname</name>
+            <subjectIdentifier>test:firstname</subjectIdentifier>
+        </topicType>
+        <topicType id="2441" kind="NameType" regExp=".*">
+            <name>Lastname</name>
+            <subjectIdentifier>test:lastname</subjectIdentifier>
+        </topicType>
+        <topicType datatype="xsd:anyType" id="2444" kind="OccurrenceType" regExp=".*">
+            <name>Vita</name>
+            <subjectIdentifier>test:vita</subjectIdentifier>
+        </topicType>
+        <topicType id="2446" kind="TopicType">
+            <name>Adress</name>
+            <subjectIdentifier>test:adress</subjectIdentifier>
+            <occurrenceConstraints>
+                <occurrenceConstraint cardMax="1" cardMin="1" id="2448">
+                    <topictypeRef ref="topictypes.5"/>
+                </occurrenceConstraint>
+                <occurrenceConstraint cardMax="1" cardMin="1" id="2451">
+                    <topictypeRef ref="topictypes.6"/>
+                </occurrenceConstraint>
+                <occurrenceConstraint cardMax="1" cardMin="1" id="2457">
+                    <topictypeRef ref="topictypes.7"/>
+                </occurrenceConstraint>
+            </occurrenceConstraints>
+            <subjectIdentifierConstraints>
+                <subjectIdentifierConstraint cardMax="*" cardMin="1" id="2447" regExp=".*"/>
+            </subjectIdentifierConstraints>
+        </topicType>
+        <topicType datatype="xsd:string" id="2450" kind="OccurrenceType" regExp=".*">
+            <name>Street</name>
+            <subjectIdentifier>test:street</subjectIdentifier>
+        </topicType>
+        <topicType datatype="xsd:anyType" id="2453" kind="OccurrenceType" regExp=".*">
+            <name>Number</name>
+            <subjectIdentifier>test:number</subjectIdentifier>
+        </topicType>
+        <topicType datatype="xsd:anyType" id="2458" kind="OccurrenceType" regExp=".*">
+            <name>ZipCode</name>
+            <subjectIdentifier>test:zipcode</subjectIdentifier>
+        </topicType>
+        <topicType id="2461" kind="AssociationType">
+            <name>lives at</name>
+            <subjectIdentifier>test:lives_at</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="1" cardMin="1" id="2510">
+                    <topictypeRef ref="topictypes.4"/>
+                </roleConstraint>
+                <roleConstraint cardMax="1" cardMin="1" id="2511">
+                    <topictypeRef ref="topictypes.0"/>
+                </roleConstraint>
+            </roleConstraints>
+        </topicType>
+        <topicType id="2523" kind="TopicType">
+            <name>City</name>
+            <subjectIdentifier>test:city</subjectIdentifier>
+            <nameConstraints>
+                <nameConstraint cardMax="1" cardMin="1" id="2525"/>
+            </nameConstraints>
+            <subjectLocatorConstraints>
+                <subjectLocatorConstraint cardMax="1" cardMin="1" id="2524" regExp=".*"/>
+            </subjectLocatorConstraints>
+        </topicType>
+        <topicType id="2528" kind="AssociationType">
+            <name>located in</name>
+            <subjectIdentifier>test:located_in</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="1" cardMin="1" id="3145">
+                    <topictypeRef ref="topictypes.4"/>
+                </roleConstraint>
+                <roleConstraint cardMax="1" cardMin="1" id="3146">
+                    <topictypeRef ref="topictypes.21"/>
+                </roleConstraint>
+            </roleConstraints>
+            <roleCombinationConstraints>
+                <roleCombinationConstraint id="3143">
+                    <player>
+                        <topictypeRef ref="topictypes.9"/>
+                    </player>
+                    <role>
+                        <topictypeRef ref="topictypes.21"/>
+                    </role>
+                    <otherPlayer>
+                        <topictypeRef ref="topictypes.4"/>
+                    </otherPlayer>
+                    <otherRole>
+                        <topictypeRef ref="topictypes.4"/>
+                    </otherRole>
+                </roleCombinationConstraint>
+                <roleCombinationConstraint id="3144">
+                    <player>
+                        <topictypeRef ref="topictypes.4"/>
+                    </player>
+                    <role>
+                        <topictypeRef ref="topictypes.4"/>
+                    </role>
+                    <otherPlayer>
+                        <topictypeRef ref="topictypes.20"/>
+                    </otherPlayer>
+                    <otherRole>
+                        <topictypeRef ref="topictypes.21"/>
+                    </otherRole>
+                </roleCombinationConstraint>
+            </roleCombinationConstraints>
+        </topicType>
+        <topicType id="2593" kind="TopicType">
+            <name>Note</name>
+            <subjectIdentifier>test:note</subjectIdentifier>
+            <occurrenceConstraints>
+                <occurrenceConstraint cardMax="1" cardMin="1" id="2594">
+                    <annotation key="de.topicmapslab.kuria.rows" value="15"/>
+                    <topictypeRef ref="topictypes.12"/>
+                </occurrenceConstraint>
+            </occurrenceConstraints>
+        </topicType>
+        <topicType datatype="xsd:anyType" id="2595" kind="OccurrenceType" regExp=".*">
+            <name>Content</name>
+            <subjectIdentifier>test:content</subjectIdentifier>
+        </topicType>
+        <topicType id="2598" kind="AssociationType">
+            <name>is dumb</name>
+            <subjectIdentifier>test:is_dumb</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="1" cardMin="1" id="2614">
+                    <topictypeRef ref="topictypes.0"/>
+                </roleConstraint>
+            </roleConstraints>
+        </topicType>
+        <topicType id="2617" kind="AssociationType">
+            <name>Friend Of</name>
+            <subjectIdentifier>test:friend_of</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="2" cardMin="2" id="2641">
+                    <topictypeRef ref="topictypes.15"/>
+                </roleConstraint>
+            </roleConstraints>
+        </topicType>
+        <topicType id="2640" kind="RoleType">
+            <name>Friend</name>
+            <subjectIdentifier>test:friend</subjectIdentifier>
+        </topicType>
+        <topicType id="2644" kind="AssociationType">
+            <name>Father Of</name>
+            <subjectIdentifier>test:father_of</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="2" cardMin="1" id="2646">
+                    <topictypeRef ref="topictypes.17"/>
+                </roleConstraint>
+            </roleConstraints>
+        </topicType>
+        <topicType id="2645" kind="RoleType">
+            <name>Father</name>
+            <subjectIdentifier>test:father</subjectIdentifier>
+        </topicType>
+        <topicType id="2649" kind="AssociationType">
+            <name>hasNote</name>
+            <subjectIdentifier>test:hasnote</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="*" cardMin="0" id="2709">
+                    <topictypeRef ref="topictypes.19"/>
+                </roleConstraint>
+                <roleConstraint cardMax="*" cardMin="0" id="3207">
+                    <topictypeRef ref="topictypes.11"/>
+                </roleConstraint>
+            </roleConstraints>
+            <roleCombinationConstraints>
+                <roleCombinationConstraint id="2817">
+                    <player>
+                        <topictypeRef ref="topictypes.11"/>
+                    </player>
+                    <role>
+                        <topictypeRef ref="topictypes.11"/>
+                    </role>
+                    <otherPlayer>
+                        <topictypeRef ref="topictypes.4"/>
+                    </otherPlayer>
+                    <otherRole>
+                        <topictypeRef ref="topictypes.19"/>
+                    </otherRole>
+                </roleCombinationConstraint>
+                <roleCombinationConstraint id="2818">
+                    <player>
+                        <topictypeRef ref="topictypes.11"/>
+                    </player>
+                    <role>
+                        <topictypeRef ref="topictypes.11"/>
+                    </role>
+                    <otherPlayer>
+                        <topictypeRef ref="topictypes.9"/>
+                    </otherPlayer>
+                    <otherRole>
+                        <topictypeRef ref="topictypes.19"/>
+                    </otherRole>
+                </roleCombinationConstraint>
+                <roleCombinationConstraint id="2819">
+                    <player>
+                        <topictypeRef ref="topictypes.11"/>
+                    </player>
+                    <role>
+                        <topictypeRef ref="topictypes.11"/>
+                    </role>
+                    <otherPlayer>
+                        <topictypeRef ref="topictypes.0"/>
+                    </otherPlayer>
+                    <otherRole>
+                        <topictypeRef ref="topictypes.19"/>
+                    </otherRole>
+                </roleCombinationConstraint>
+            </roleCombinationConstraints>
+        </topicType>
+        <topicType id="2708" kind="RoleType">
+            <name>Noted</name>
+            <subjectIdentifier>test:noted</subjectIdentifier>
+        </topicType>
+        <topicType id="3029" kind="TopicType">
+            <name>Continent</name>
+            <subjectIdentifier>test:continent</subjectIdentifier>
+            <subjectIdentifierConstraints>
+                <subjectIdentifierConstraint cardMax="1" cardMin="1" id="3030" regExp=".*"/>
+            </subjectIdentifierConstraints>
+        </topicType>
+        <topicType id="3141" kind="RoleType">
+            <name>Location</name>
+            <subjectIdentifier>test:location</subjectIdentifier>
+        </topicType>
+        <topicType id="3215" kind="NameType" regExp=".*">
+            <name>Middlename</name>
+            <subjectIdentifier>test:middlename</subjectIdentifier>
+        </topicType>
+        <topicType id="3218" kind="TopicType">
+            <name>MetaInf</name>
+            <subjectIdentifier>test:metainf</subjectIdentifier>
+        </topicType>
+        <topicType id="3221" kind="AssociationType">
+            <name>hasMetaInf</name>
+            <subjectIdentifier>test:hasmetainf</subjectIdentifier>
+            <roleConstraints>
+                <roleConstraint cardMax="1" cardMin="1" id="3243">
+                    <topictypeRef ref="topictypes.23"/>
+                </roleConstraint>
+                <roleConstraint cardMax="1" cardMin="1" id="3244">
+                    <topictypeRef ref="topictypes.4"/>
+                </roleConstraint>
+            </roleConstraints>
+        </topicType>
+        <associationConstraint id="2460">
+            <topictypeRef ref="topictypes.8"/>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2463">
+                <player>
+                    <topictypeRef ref="topictypes.0"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.8_roleConstraints.1"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2495">
+                <annotation key="de.topicmapslab.aranuka.generateattribute" value="false"/>
+                <player>
+                    <topictypeRef ref="topictypes.4"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.8_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+        <associationConstraint id="2527">
+            <topictypeRef ref="topictypes.10"/>
+            <topicRoleConstraint cardMax="1" cardMin="1" id="2530">
+                <annotation key="de.topicmapslab.aranuka.generateattribute" value="false"/>
+                <player>
+                    <topictypeRef ref="topictypes.9"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.10_roleConstraints.1"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="1" cardMin="1" id="2569">
+                <player>
+                    <topictypeRef ref="topictypes.4"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.10_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="1" cardMin="1" id="3033">
+                <annotation key="de.topicmapslab.aranuka.generateattribute" value="true"/>
+                <player>
+                    <topictypeRef ref="topictypes.20"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.10_roleConstraints.1"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+        <associationConstraint id="2597">
+            <topictypeRef ref="topictypes.13"/>
+            <topicRoleConstraint cardMax="1" cardMin="0" id="2600">
+                <annotation key="de.topicmapslab.aranuka.name" value="dumb"/>
+                <player>
+                    <topictypeRef ref="topictypes.0"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.13_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+        <associationConstraint id="2616">
+            <topictypeRef ref="topictypes.14"/>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2619">
+                <annotation key="de.topicmapslab.aranuka.name" value="friend"/>
+                <player>
+                    <topictypeRef ref="topictypes.0"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.14_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+        <associationConstraint id="2648">
+            <topictypeRef ref="topictypes.18"/>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2651">
+                <player>
+                    <topictypeRef ref="topictypes.11"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.18_roleConstraints.1"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2683">
+                <player>
+                    <topictypeRef ref="topictypes.0"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.18_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2711">
+                <player>
+                    <topictypeRef ref="topictypes.9"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.18_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="2734">
+                <player>
+                    <topictypeRef ref="topictypes.4"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.18_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+        <associationConstraint id="3220">
+            <topictypeRef ref="topictypes.24"/>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="3223">
+                <player>
+                    <topictypeRef ref="topictypes.4"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.24_roleConstraints.1"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+            <topicRoleConstraint cardMax="*" cardMin="0" id="3233">
+                <annotation key="de.topicmapslab.aranuka.generateattribute" value="false"/>
+                <player>
+                    <topictypeRef ref="topictypes.23"/>
+                </player>
+                <roleConstraint>
+                    <roleConstraintReference ref="topictypes.24_roleConstraints.0"/>
+                </roleConstraint>
+            </topicRoleConstraint>
+        </associationConstraint>
+    </schema>
+    <diagram id="2433" name="Testdiagram" type="domain">
+        <node id="2434" posX="172" posY="140" type="typeNode">
+            <topictypeRef ref="topictypes.0"/>
+        </node>
+        <node id="2445" posX="600" posY="81" type="typeNode">
+            <topictypeRef ref="topictypes.4"/>
+        </node>
+        <node id="2459" posX="353" posY="53" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.0"/>
+        </node>
+        <node id="2522" posX="571" posY="375" type="typeNode">
+            <topictypeRef ref="topictypes.9"/>
+        </node>
+        <node id="2526" posX="753" posY="238" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.1"/>
+        </node>
+        <node id="2592" posX="34" posY="423" type="typeNode">
+            <topictypeRef ref="topictypes.11"/>
+        </node>
+        <node id="2596" posX="183" posY="3" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.2"/>
+        </node>
+        <node id="2615" posX="3" posY="124" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.3"/>
+        </node>
+        <node id="2647" posX="237" posY="292" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.4"/>
+        </node>
+        <node id="3028" posX="833" posY="67" type="typeNode">
+            <topictypeRef ref="topictypes.20"/>
+        </node>
+        <node id="3217" posX="481" posY="-26" type="typeNode">
+            <topictypeRef ref="topictypes.23"/>
+        </node>
+        <node id="3219" posX="726" posY="-18" type="associationNode">
+            <assocConstraintRef ref="assocConstraints.5"/>
+        </node>
+        <edge id="2493" source="node.2" target="node.0" topicRoleRef="associationConstraint.0_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2507" source="node.2" target="node.1" topicRoleRef="associationConstraint.0_topicRoleConstraint.1" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2567" source="node.4" target="node.3" topicRoleRef="associationConstraint.1_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2587" source="node.4" target="node.1" topicRoleRef="associationConstraint.1_topicRoleConstraint.1" type="ROLE_CONSTRAINT_TYPE">
+            <bendpoint id="2816" posX="692" posY="307"/>
+        </edge>
+        <edge id="2611" source="node.6" target="node.0" topicRoleRef="associationConstraint.2_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2637" source="node.7" target="node.0" topicRoleRef="associationConstraint.3_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2681" source="node.8" target="node.5" topicRoleRef="associationConstraint.4_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2704" source="node.8" target="node.0" topicRoleRef="associationConstraint.4_topicRoleConstraint.1" type="ROLE_CONSTRAINT_TYPE">
+            <bendpoint id="2926" posX="214" posY="401"/>
+        </edge>
+        <edge id="2730" source="node.8" target="node.3" topicRoleRef="associationConstraint.4_topicRoleConstraint.2" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="2750" source="node.8" target="node.1" topicRoleRef="associationConstraint.4_topicRoleConstraint.3" type="ROLE_CONSTRAINT_TYPE">
+            <bendpoint id="3027" posX="629" posY="336"/>
+        </edge>
+        <edge id="3051" source="node.4" target="node.9" topicRoleRef="associationConstraint.1_topicRoleConstraint.2" type="ROLE_CONSTRAINT_TYPE">
+            <bendpoint id="3140" posX="919" posY="344"/>
+        </edge>
+        <edge id="3231" source="node.11" target="node.1" topicRoleRef="associationConstraint.5_topicRoleConstraint.0" type="ROLE_CONSTRAINT_TYPE"/>
+        <edge id="3240" source="node.11" target="node.10" topicRoleRef="associationConstraint.5_topicRoleConstraint.1" type="ROLE_CONSTRAINT_TYPE"/>
+    </diagram>
+</file>
