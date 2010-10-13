@@ -7,6 +7,13 @@
 	<name>Generic Editor SDK Code Generator</name>
 	<description>Generator which creates code for the editor based on a TMCL schema. </description>
 	<build>
+	<extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+         <artifactId>wagon-ssh</artifactId>
+         <version>1.0-beta-2</version>
+      </extension>
+    </extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
