@@ -232,7 +232,9 @@ public class AranukaDescriptorFactory {
 
 	private ClassDescriptor generateClassDescriptor(Set<String> siSet, IResult r, Topic topic)
 	        throws IllegalSchemaException {
-		String si = siSet.iterator().next();
+		String si = TMQLPreperator.getIdentifierString(siSet.iterator().next(), IdType.SUBJECT_IDENTIFIER);
+		
+		
 		List<Object> results = r.getResults();
 
 		ClassDescriptor cd = new ClassDescriptor(pkgDescriptor);
@@ -307,6 +309,7 @@ public class AranukaDescriptorFactory {
 
 		String constraintName = null;
 		String fieldName = null;
+		
 		switch (type) {
 		case ITEM_IDENTIFIER:
 			constraintName = "tmcl:item-identifier-constraint";
@@ -470,7 +473,7 @@ public class AranukaDescriptorFactory {
 		        + " FOR $c IN // tmcl:topic-role-constraint"
 		        // +
 		        // " [  ( . / ara:generateattribute =~ \"true\" ) OR  fn:count ( . / ara:generateattribute) == 0 ]\n"
-		        + " [ . >> traverse tmcl:constrained-topic-type == " + si + " << indicators ] "
+		        + " [ . >> traverse tmcl:constrained-topic-type == " + si + " ] "
 		        + " ORDER BY $c >> traverse tmcl:constrained-statement / tm:name [0]"
 		        + " RETURN $c >> traverse tmcl:constrained-statement >> indicators >> atomify [0], "
 		        + " $c >> traverse tmcl:constrained-role >> indicators >> atomify [0], " + " $c, "

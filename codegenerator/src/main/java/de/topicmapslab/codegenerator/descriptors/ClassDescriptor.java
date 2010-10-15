@@ -379,4 +379,18 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
     	}
     	method.body()._return(res);
     }
+
+	/**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+	    StringBuilder builder = new StringBuilder();
+	    builder.append("ClassDescriptor [name=");
+	    builder.append(name);
+	    builder.append(", extendsName=");
+	    builder.append(extendsName);
+	    builder.append("]");
+	    return builder.toString();
+    }
 }

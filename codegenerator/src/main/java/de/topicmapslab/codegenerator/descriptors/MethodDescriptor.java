@@ -177,4 +177,20 @@ public class MethodDescriptor extends AbstractModifiedDescriptor implements IAnn
 	protected void generateMethodBody(JMethod m, JCodeModel cm) {
 		m.body().block().directStatement("// TODO implement the method");
 	}
+
+	/**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+	    StringBuilder builder = new StringBuilder();
+	    builder.append("MethodDescriptor [name=");
+	    builder.append(name);
+	    builder.append(", returnType=");
+	    builder.append(returnType);
+	    builder.append(", parameters=");
+	    builder.append(parameters);
+	    builder.append("]");
+	    return builder.toString();
+    }
 }

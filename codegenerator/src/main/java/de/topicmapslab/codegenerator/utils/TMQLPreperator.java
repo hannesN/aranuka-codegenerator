@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
- 
+
 package de.topicmapslab.codegenerator.utils;
 
 import java.io.IOException;
@@ -28,36 +28,34 @@ import org.tmapi.core.TopicMapSystem;
 import org.tmapix.io.TopicMapReader;
 import org.tmapix.io.XTMTopicMapReader;
 
+import de.topicmapslab.aranuka.enummerations.IdType;
 import de.topicmapslab.majortom.core.TopicMapSystemFactoryImpl;
 import de.topicmapslab.tmql4j.common.core.runtime.TMQLRuntimeFactory;
 import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
 
 /**
  * @author Hannes Niederhausen
- *
+ * 
  */
 public class TMQLPreperator {
 
 	public static ITMQLRuntime createRuntime(InputStream is) throws TMAPIException, IOException {
 		TopicMapSystemFactoryImpl tmsFac = new TopicMapSystemFactoryImpl();
-		
+
 		TopicMapSystem tms = tmsFac.newTopicMapSystem();
-		
+
 		TopicMap tm = tms.createTopicMap("http://psi.topicmapslab.de/codegen");
-		
+
 		TopicMapReader reader = null;
-		reader = new XTMTopicMapReader(tm, is, "http://genny.codegen.de/"); 
-		
+		reader = new XTMTopicMapReader(tm, is, "http://genny.codegen.de/");
+
 		reader.read();
-		
+
 		ITMQLRuntime runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, tm);
-		
-		
+
 		return runtime;
 	}
-	
-	
-	
+
 	/**
 	 * Returns a tmql query part which returns the given topic.
 	 * 
@@ -77,6 +75,26 @@ public class TMQLPreperator {
 		Set<Locator> iiSet = t.getItemIdentifiers();
 		if (!iiSet.isEmpty())
 			return "\"" + iiSet.iterator().next().toExternalForm() + "\" << item";
+
+		throw new IllegalArgumentException("The given topic has no identifier!");
+	}
+
+	/**
+	 * Returns a tmql query part which returns the given topic.
+	 * 
+	 * @param t
+	 *            the topic which identifier should be used
+	 * @return a string containing the identifier string
+	 */
+	public static String getIdentifierString(String id, IdType type) {
+		switch (type) {
+		case ITEM_IDENTIFIER:
+			return "\"" + id + "\" << item";
+		case SUBJECT_IDENTIFIER:
+			return "\"" + id + "\" << indicators";
+		case SUBJECT_LOCATOR:
+			return "\"" + id + "\" << locators";
+		}
 
 		throw new IllegalArgumentException("The given topic has no identifier!");
 	}

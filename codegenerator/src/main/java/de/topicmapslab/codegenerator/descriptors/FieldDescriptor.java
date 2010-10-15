@@ -266,4 +266,20 @@ public class FieldDescriptor implements IAnnoationDescriptor {
 			pd.setName(getName());
 		}
 	}
+
+	/**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+	    StringBuilder builder = new StringBuilder();
+	    builder.append("FieldDescriptor [name=");
+	    builder.append(name);
+	    builder.append(", type=");
+	    builder.append(type);
+	    builder.append(", many=");
+	    builder.append(many);
+	    builder.append("]");
+	    return builder.toString();
+    }
 }
