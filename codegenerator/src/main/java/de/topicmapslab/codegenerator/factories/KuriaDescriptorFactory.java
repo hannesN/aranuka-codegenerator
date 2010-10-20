@@ -192,8 +192,6 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 		if (q.getResults().isEmpty())
 			return Integer.MIN_VALUE;
 
-		System.out.println(q.getResults().get(0, 0).getClass());
-
 		return Integer.parseInt((String) q.getResults().get(0, 0));
 	}
 
@@ -242,12 +240,15 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	 * @return
 	 */
 	private boolean isOptional(Topic topic) {
+		if ("0".equals(getCardMin(topic)))
+			return true;
+		
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/optional ";
 		IQuery q = runtime.run(queryString);
 
 		if (q.getResults().isEmpty()) {
-			return "0".equals(getCardMin(topic));
+			return false;
 		}
 
 		Object hidden = q.getResults().get(0, 0);
@@ -267,7 +268,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 		IQuery q = runtime.run(queryString);
 
 		if (q.getResults().isEmpty()) {
-			return "0".equals(getCardMin(topic));
+			return false;
 		}
 
 		Object hidden = q.getResults().get(0, 0);

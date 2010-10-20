@@ -978,6 +978,10 @@ public class AranukaDescriptorFactory {
 	private void checkCategory(Topic t, ClassDescriptor cd, String name) {
 		if (!createGennyClasses)
 			return;
+		
+		if (isAbstract(t))
+			return;
+		
 		IQuery q = runtime.run("RETURN " + getTMQLIdentifierString(t)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/genny/category");
 
@@ -1021,5 +1025,20 @@ public class AranukaDescriptorFactory {
 			return (Boolean) hidden;
 		else
 			return Boolean.parseBoolean((String) hidden);
+	}
+	
+	/**
+	 * Checksa if an abstract-constraint exists for the given topic type
+	 * 
+	 * @param topic
+	 * @return
+	 */
+	private boolean isAbstract(Topic topic) {
+		String queryString = " SELECT " +getTMQLIdentifierString(topic)+ " >> traverse  tmcl:constrained-topic-type [ . >> types == tmcl:abstract-constraint ] ";
+		IQuery q = runtime.run(queryString);
+
+		return !q.getResults().isEmpty();
+
+		
 	}
 }
