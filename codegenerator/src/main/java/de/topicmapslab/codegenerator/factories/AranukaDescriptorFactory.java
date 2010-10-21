@@ -846,11 +846,14 @@ public class AranukaDescriptorFactory {
     				ad = new AnnotationDescriptor(fd);
     				ad.setQualifiedName(Role.class.getName());
     				
+    				assocCD.addIdField(fd);
+    				
     				PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
     				pad.setName("type");
     				pad.setValue(r.get(1));
     				
     				kuriaFactory.addKuriaAnnotations(fd, (Topic) r.get(4), "0".equals(cardMin));
+    				
     			}
     		}
     		
@@ -866,6 +869,10 @@ public class AranukaDescriptorFactory {
     		pad.setName("type");
     		pad.setValue(assocTypeSi);
     		
+    		pad = new PrimitiveAttributeDescriptor(ad);
+    		pad.setName("persistOnCascade");
+    		pad.setValue(true);
+    		
     		// get cardinality of the topic-role constraint of the topic represented by this class descriptor
     		
     		// create fields for the association container:
@@ -876,6 +883,11 @@ public class AranukaDescriptorFactory {
     	        + "RETURN $c / tmcl:card-max, $c";
     		IQuery q2 = runtime.run(queryString);
     		fd.setMany(isMany(q2.getResults()));
+    		
+    		for (FieldDescriptor fieldDescriptor : assocCD.getFields()) {
+    			addSupportedField(fieldDescriptor);
+    		}
+    		
     		kuriaFactory.addKuriaAnnotations(fd, (Topic) q2.getResults().get(0, 1));
     		kuriaFactory.addKuriaAnnotations(assocCD, getTopic(assocTypeSi));
     		addAranukaMappingClass(assocCD);
@@ -1019,7 +1031,7 @@ public class AranukaDescriptorFactory {
 		String queryString;
 		IQuery query;
 		queryString = "FOR $c IN  // tmcl:topic-role-constraint " + " [ . >>  traverse tmcl:constrained-statement == "
-		        + assocTypeSi + " AND . >> traverse tmcl:constrained-role == " + otherPlayerRole + " ] "
+		        + assocTypeSi + " AND . >> traverse tmcl:constrained-role == " + getIdentifierString(otherPlayerRole, IdType.SUBJECT_IDENTIFIER) + " ] "
 		        + "RETURN $c >> traverse tmcl:constrained-topic-type ";
 
 		query = runtime.run(queryString);
