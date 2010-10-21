@@ -28,6 +28,7 @@ public class AbstractModifiedDescriptor {
 	protected boolean _public;
 	protected boolean _protected;
 	protected boolean _private;
+	protected boolean _static;
 
 	/**
 	 * 
@@ -38,6 +39,7 @@ public class AbstractModifiedDescriptor {
 		this._private  = false;
 		this._protected = false;
 		this._public = true;
+		this._static = false;
 	}
 
 	/**
@@ -99,6 +101,20 @@ public class AbstractModifiedDescriptor {
     public void setPublic(boolean _public) {
     	this._public = _public;
     }
+    
+    /**
+     * @return the _static
+     */
+    public boolean isStatic() {
+	    return _static;
+    }
+    
+    /**
+     * @param _static the _static to set
+     */
+    public void setStatic(boolean _static) {
+	    this._static = _static;
+    }
 
     /**
      * @return
@@ -111,6 +127,9 @@ public class AbstractModifiedDescriptor {
 			mods |= JMod.PUBLIC;
 		} else if (isProtected()) {
 			mods |= JMod.PROTECTED;
+		} 
+		if (isStatic()) {
+			mods |= JMod.STATIC;
 		}
 	    return mods;
     }

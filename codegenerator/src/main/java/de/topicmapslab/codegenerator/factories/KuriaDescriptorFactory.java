@@ -34,6 +34,7 @@ import de.topicmapslab.kuria.annotation.Text;
 import de.topicmapslab.kuria.annotation.widgets.Check;
 import de.topicmapslab.kuria.annotation.widgets.Combo;
 import de.topicmapslab.kuria.annotation.widgets.Editable;
+import de.topicmapslab.kuria.annotation.widgets.Group;
 import de.topicmapslab.kuria.annotation.widgets.Hidden;
 import de.topicmapslab.kuria.annotation.widgets.List;
 import de.topicmapslab.kuria.annotation.widgets.TextField;
@@ -54,20 +55,32 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	}
 
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
-    public void addKuriaAnnotations(ClassDescriptor cd, Topic topic) {
+	public void addKuriaAnnotations(ClassDescriptor cd, Topic topic) {
 		AnnotationDescriptor ad = new AnnotationDescriptor(cd);
 		ad.setQualifiedName(Editable.class.getName());
 
 	}
 
 	/**
-     * {@inheritDoc}
-     */
+	 * {@inheritDoc}
+	 */
 	@Override
-    public void addKuriaAnnotations(FieldDescriptor fd, Topic topic) {
+	public void addKuriaAnnotations(FieldDescriptor fd, Topic topic) {
+		if (topic != null) {
+			addKuriaAnnotations(fd, topic, isOptional(topic));
+		} else {
+			addKuriaAnnotations(fd, topic, false);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addKuriaAnnotations(FieldDescriptor fd, Topic topic, boolean optional) {
 		Class<?> annoClass = getClassByFieldType(fd);
 
 		AnnotationDescriptor ad = new AnnotationDescriptor(fd);
@@ -93,10 +106,10 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 				pad.setValue(label);
 			}
 
-			if (isOptional(topic)) {
+			if (optional) {
 				PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
 				pad.setName("optional");
-				pad.setValue(true);
+				pad.setValue(optional);
 			}
 
 			try {
@@ -158,6 +171,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 			ad = new AnnotationDescriptor(fd);
 			ad.setQualifiedName(Text.class.getName());
 		}
+
 	}
 
 	/**
@@ -242,7 +256,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private boolean isOptional(Topic topic) {
 		if ("0".equals(getCardMin(topic)))
 			return true;
-		
+
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/optional ";
 		IQuery q = runtime.run(queryString);
@@ -356,6 +370,14 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 		if ((DescriptorUtil.hasPrimitiveType(type)) || (String.class.getName().equals(type)))
 			return de.topicmapslab.kuria.annotation.widgets.TextField.class;
 
+		// returning group if we have an embedded class which means container
+		
+		for (ClassDescriptor cd : fd.getParent().getChildClasses()) {	
+			if (cd.getQualifiedName().equals(fd.getType()))
+				return Group.class;
+		}
+		
+		
 		return Combo.class;
 	}
 }

@@ -92,6 +92,13 @@ public class PackageDescriptor implements IClassContainer {
 		for (ClassDescriptor cd : getChildClasses()) {
 			cd.generateClass(pack, cm);
 		}
-		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getQualifiedName() {
+		return getName();
 	}
 }

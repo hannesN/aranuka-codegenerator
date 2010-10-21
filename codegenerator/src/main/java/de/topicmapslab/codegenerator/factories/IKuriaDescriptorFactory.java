@@ -34,5 +34,7 @@ interface IKuriaDescriptorFactory {
 	 * @param topic
 	 */
 	public void addKuriaAnnotations(FieldDescriptor fd, Topic topic);
+	
+	public void addKuriaAnnotations(FieldDescriptor fd, Topic topic, boolean optional);
 
 }

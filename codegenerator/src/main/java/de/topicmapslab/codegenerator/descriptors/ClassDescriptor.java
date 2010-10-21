@@ -276,13 +276,20 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
     }
 	
 	public String getQualifiedName() {
-		return parent.getName()+"."+getName();
+		if (parent instanceof PackageDescriptor)
+			return parent.getName()+"."+getName();
+		
+		if (parent instanceof ClassDescriptor) {
+			return parent.getQualifiedName()+"."+getName();
+		}
+		
+		return getName();
 	}
 
 	/**
      * @return the parent
      */
-    protected IClassContainer getParent() {
+    public IClassContainer getParent() {
 	    return parent;
     }
 	

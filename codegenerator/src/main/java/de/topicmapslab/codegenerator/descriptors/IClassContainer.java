@@ -32,7 +32,18 @@ public interface IClassContainer {
 	 * @return the classes
 	 */
 	public abstract List<ClassDescriptor> getChildClasses();
+
 	
+	/**
+	 * returns the name of the container
+	 * @return
+	 */
 	public String getName();
+	
+	/**
+	 * Returns the qualified name of the container.
+	 * @return
+	 */
+	public String getQualifiedName();
 
 }

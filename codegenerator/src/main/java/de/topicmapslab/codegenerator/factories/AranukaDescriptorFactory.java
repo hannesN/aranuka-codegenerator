@@ -16,7 +16,7 @@
  
 package de.topicmapslab.codegenerator.factories;
 
-import static de.topicmapslab.codegenerator.utils.TMQLPreperator.getTMQLIdentifierString;
+import static de.topicmapslab.codegenerator.utils.TMQLPreperator.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIException;
 import org.tmapi.core.Topic;
@@ -35,9 +37,11 @@ import org.tmapi.core.TopicMap;
 import org.tmapi.core.TopicMapSystem;
 
 import de.topicmapslab.aranuka.annotations.Association;
+import de.topicmapslab.aranuka.annotations.AssociationContainer;
 import de.topicmapslab.aranuka.annotations.Id;
 import de.topicmapslab.aranuka.annotations.Name;
 import de.topicmapslab.aranuka.annotations.Occurrence;
+import de.topicmapslab.aranuka.annotations.Role;
 import de.topicmapslab.aranuka.enummerations.IdType;
 import de.topicmapslab.codegenerator.CodeGenerator;
 import de.topicmapslab.codegenerator.descriptors.AnnotationDescriptor;
@@ -66,6 +70,8 @@ import de.topicmapslab.tmql4j.resultprocessing.model.IResultSet;
  * 
  */
 public class AranukaDescriptorFactory {
+
+	private static Logger logger = LoggerFactory.getLogger(AranukaDescriptorFactory.class);
 
 	private final boolean createGennyClasses;
 	private final boolean createKuriaAnnotation;
@@ -181,6 +187,11 @@ public class AranukaDescriptorFactory {
     			public void addKuriaAnnotations(ClassDescriptor cd, Topic topic) {
     				// does nothing
     			}
+
+				@Override
+                public void addKuriaAnnotations(FieldDescriptor fd, Topic topic, boolean optional) {
+    				// does nothing
+                }
     		};
     	}
     
@@ -683,87 +694,194 @@ public class AranukaDescriptorFactory {
     }
 
 	/**
-	 * @param cd
-	 * @param assocTypeSi
-	 * @param roleTypeSi
-	 * @throws IllegalSchemaException
-	 */
-	private void createNRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi,
-	        String topicSI) throws IllegalSchemaException {
-		String queryString = "FOR $c IN // tmcl:association-role-constraint "
-		        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi
-		        + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
-		        + "RETURN $c / tmcl:card-max, " + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0]";
+	 * 
+	 * Creates n binary associtions using the rolecombination constraints.
+	 * 
+     * @param cd the class descriptor which contains the association fields
+     * @param assocTypeSi the association type
+     * @param roleTypeSi the role-type identifier of the topic represented by the class
+     * @param topicSI the subject identifier of the topic represented by the class
+     * @param query the query which contains the list of roles
+     * @throws IllegalSchemaException
+     */
+	// TODO recode?
+    protected void createBinaryAssociations(ClassDescriptor cd, String assocTypeSi, String roleTypeSi, String topicSI,
+            IQuery query) throws IllegalSchemaException {
+	    for (IResult r : query.getResults()) {
 
-		IQuery query = runtime.run(queryString);
+	    	String queryString = "FOR $c IN // tmcl:topic-role-constraint "
+	    	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
+	    	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + getIdentifierString(topicSI, IdType.SUBJECT_IDENTIFIER) + " ) ] "
+	    	        + "RETURN $c / tmcl:card-max, "
+	    	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
+	    	        + "$c >> traverse tmcl:constrained-topic-type >> indicators >> atomify [0], "
+	    	        + "$c >> traverse tmcl:constrained-topic-type / tm:name [0], $c, "
+	    	        + "$c >> traverse tmcl:constrained-topic-type [0] ";
 
-		if (roleCombinationConstraintExists(assocTypeSi)) {
-			// create n binary fields
-			for (IResult r : query.getResults()) {
+	    	IQuery q2 = runtime.run(queryString);
 
-				queryString = "FOR $c IN // tmcl:topic-role-constraint "
-				        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi
-				        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
-				        + "RETURN $c / tmcl:card-max, "
-				        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
-				        + "$c >> traverse tmcl:constrained-topic-type >> indicators >> atomify [0], "
-				        + "$c >> traverse tmcl:constrained-topic-type / tm:name [0], $c, "
-				        + "$c >> traverse tmcl:constrained-topic-type [0] ";
+	    	for (IResult r2 : q2.getResults()) {
+	    		boolean isMany = isMany(q2.getResults());
 
-				IQuery q2 = runtime.run(queryString);
+	    		String roleSi = (String) r2.get(1);
+	    		String playerSi = (String) r2.get(2);
+	    		String playerName = (String) r2.get(3);
+	    		Topic topicRoleConstr = (Topic) r2.get(4);
+	    		Topic playerTopic = (Topic) r2.get(5);
 
-				for (IResult r2 : q2.getResults()) {
-					boolean isMany = isMany(q2.getResults());
+	    		String name = getFieldName(topicRoleConstr);
+	    		if (name == null) {
+	    			name = TypeUtility.getFieldName(playerName);
+	    		}
 
-					String roleSi = (String) r2.get(1);
-					String playerSi = (String) r2.get(2);
-					String playerName = (String) r2.get(3);
-					Topic topicRoleConstr = (Topic) r2.get(4);
-					Topic playerTopic = (Topic) r2.get(5);
+	    		if (!createField(topicRoleConstr))
+	    			continue;
 
-					String name = getFieldName(topicRoleConstr);
-					if (name == null) {
-						name = TypeUtility.getFieldName(playerName);
-					}
+	    		if (roleCombinationConstraintExists(assocTypeSi, topicSI, roleTypeSi, playerSi, roleSi)) {
+	    			FieldDescriptor fd = createField(cd, isMany, playerTopic, name);
 
-					if (!createField(topicRoleConstr))
-						continue;
+	    			AnnotationDescriptor ad = new AnnotationDescriptor(fd);
+	    			ad.setQualifiedName(Association.class.getName());
 
-					if (roleCombinationConstraintExists(assocTypeSi, topicSI, roleTypeSi, playerSi, roleSi)) {
-						FieldDescriptor fd = new FieldDescriptor(cd);
-						fd.setType(parseTopicType(playerTopic).getQualifiedName());
-						// TODO name set
-						fd.setName(name);
-						fd.setMany(isMany);
+	    			PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
+	    			pad.setName("type");
+	    			pad.setValue(assocTypeSi);
 
-						AnnotationDescriptor ad = new AnnotationDescriptor(fd);
-						ad.setQualifiedName(Association.class.getName());
+	    			pad = new PrimitiveAttributeDescriptor(ad);
+	    			pad.setName("played_role");
+	    			pad.setValue(roleTypeSi);
 
-						PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
-						pad.setName("type");
-						pad.setValue(assocTypeSi);
+	    			pad = new PrimitiveAttributeDescriptor(ad);
+	    			pad.setName("other_role");
+	    			pad.setValue(roleSi);
+	    			kuriaFactory.addKuriaAnnotations(fd, topicRoleConstr);
+	    			addSupportedField(fd);
+	    		}
+	    	}
+	    }
+    }
 
-						pad = new PrimitiveAttributeDescriptor(ad);
-						pad.setName("played_role");
-						pad.setValue(roleTypeSi);
+	/**
+     * @param cd
+     * @param isMany
+     * @param playerTopic
+     * @param name
+     * @return
+     * @throws IllegalSchemaException
+     */
+    protected FieldDescriptor createField(ClassDescriptor cd, boolean isMany, Topic playerTopic, String name)
+            throws IllegalSchemaException {
+	    FieldDescriptor fd = new FieldDescriptor(cd);
+	    fd.setType(parseTopicType(playerTopic).getQualifiedName());
+	    // TODO name set
+	    fd.setName(name);
+	    fd.setMany(isMany);
+	    return fd;
+    }
 
-						pad = new PrimitiveAttributeDescriptor(ad);
-						pad.setName("other_role");
-						pad.setValue(roleSi);
-						kuriaFactory.addKuriaAnnotations(fd, topicRoleConstr);
-						addSupportedField(fd);
-					}
-				}
-			}
-		} else {
-			// TODO create container and add field
-			// ClassDescriptor
-			// for (IResult r : query.getResults()) {
-			//
-			// }
-		}
-
-	}
+	/**
+     * @param cd
+     * @param assocTypeSi
+     * @param roleTypeSi
+     * @throws IllegalSchemaException
+     */
+    private void createNRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi,
+            String topicSI) throws IllegalSchemaException {
+    	String queryString = "FOR $c IN // tmcl:association-role-constraint "
+    	        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi
+    	        + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
+    	        + "RETURN $c / tmcl:card-max, " 
+    	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
+    	        + "$c / tmcl:card-min ";
+    
+    	IQuery query = runtime.run(queryString);
+    
+    	if (roleCombinationConstraintExists(assocTypeSi)) {
+    		// create n binary fields
+    		createBinaryAssociations(cd, assocTypeSi, roleTypeSi, topicSI, query);
+    	} else {
+    		// create association container
+    		ClassDescriptor assocCD = new ClassDescriptor(cd);
+    		assocCD.setName(TypeUtility.getJavaName(getName(assocTypeSi)));
+    		assocCD.setStatic(true);
+    		
+    		AnnotationDescriptor ad = new AnnotationDescriptor(assocCD);
+    		ad.setQualifiedName(AssociationContainer.class.getName());
+    		
+    		
+    		for (IResult roleResult : query.getResults()) {
+    			String roleSI = roleResult.get(1);
+    			boolean isMany = getMax(0, roleResult)>1;
+    			
+    			String cardMin = roleResult.get(2);
+    			
+    			// create fields for the association container:
+    			queryString = "FOR $c IN // tmcl:topic-role-constraint "
+        	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
+        	        + " AND (. >> traverse tmcl:constrained-role == " + getIdentifierString(roleSI, IdType.SUBJECT_IDENTIFIER) + " ) "
+        	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + getIdentifierString(topicSI, IdType.SUBJECT_IDENTIFIER) + " ) ] "
+        	        + "RETURN $c / tmcl:card-max, "
+        	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
+        	        + "$c >> traverse tmcl:constrained-topic-type >> indicators >> atomify [0], "
+        	        + "$c >> traverse tmcl:constrained-topic-type / tm:name [0], "
+        	        + "$c, "
+        	        + "$c >> traverse tmcl:constrained-topic-type [0] ";
+    			
+    			IQuery q2 = runtime.run(queryString);
+    			
+    			for (IResult r : q2.getResults()) {
+    				// check if we have the right amount of results
+    				if (r.getResults().size()!=6) {
+    					logger.warn("Invalid number of result columns for: "+assocTypeSi);
+    					continue;
+    				}
+    				
+    				// if annotation generate field is false we remove the container and return
+    				if (!createField((Topic) r.get(4))) {
+    					cd.removeChildClass(assocCD);
+    					return;
+    				}
+    				
+    				FieldDescriptor fd = createField(assocCD, isMany, (Topic) r.get(5), TypeUtility.getFieldName((String) r.get(3)));
+    				ad = new AnnotationDescriptor(fd);
+    				ad.setQualifiedName(Role.class.getName());
+    				
+    				PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
+    				pad.setName("type");
+    				pad.setValue(r.get(1));
+    				
+    				kuriaFactory.addKuriaAnnotations(fd, (Topic) r.get(4), "0".equals(cardMin));
+    			}
+    		}
+    		
+    		// adding the field to the class with the container as type
+    		FieldDescriptor fd = new FieldDescriptor(cd);
+    		fd.setType(assocCD.getQualifiedName());
+    		fd.setName(TypeUtility.getFieldName(getName(assocTypeSi)));
+    		
+    		ad = new AnnotationDescriptor(fd);
+    		ad.setQualifiedName(Association.class.getName());
+    		
+    		PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
+    		pad.setName("type");
+    		pad.setValue(assocTypeSi);
+    		
+    		// get cardinality of the topic-role constraint of the topic represented by this class descriptor
+    		
+    		// create fields for the association container:
+    		queryString = "FOR $c IN // tmcl:topic-role-constraint "
+    	        + "[ . >> traverse tmcl:constrained-statement ==  " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
+    	        + " AND (. >> traverse tmcl:constrained-role ==  " + getIdentifierString(roleTypeSi, IdType.SUBJECT_IDENTIFIER) + " ) "
+    	        + " AND ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
+    	        + "RETURN $c / tmcl:card-max, $c";
+    		IQuery q2 = runtime.run(queryString);
+    		fd.setMany(isMany(q2.getResults()));
+    		kuriaFactory.addKuriaAnnotations(fd, (Topic) q2.getResults().get(0, 1));
+    		kuriaFactory.addKuriaAnnotations(assocCD, getTopic(assocTypeSi));
+    		addAranukaMappingClass(assocCD);
+    	}
+    
+    }
 
 	/**
 	 * Checks if the topic map contains a role combination constraint for the
@@ -938,6 +1056,16 @@ public class AranukaDescriptorFactory {
 
 		return query.getResults().get(0, 0);
 	}
+
+	/**
+	 * Returns the topic instance with the given subject identifier
+	 * 
+     * @param si
+     * @return
+     */
+    private Topic getTopic(String si) {
+        return runtime.run(si).getResults().get(0, 0);
+    }
 
 	/**
 	 * @param si
