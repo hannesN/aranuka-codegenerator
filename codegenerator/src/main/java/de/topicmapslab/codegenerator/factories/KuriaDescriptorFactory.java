@@ -122,6 +122,18 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 				// noop we just ignore the fact
 			}
 			try {
+				if ((annoClass.getMethod("description") != null)) {
+					String descString = getDescription(topic);
+					if (descString!=null) {
+						PrimitiveAttributeDescriptor pad = new PrimitiveAttributeDescriptor(ad);
+						pad.setName("description");
+						pad.setValue(descString);
+					}
+				}
+			} catch (Exception e) {
+				// noop we just ignore the fact
+			}
+			try {
 				if ((annoClass.getMethod("weight") != null)) {
 					int weight = getWeight(topic);
 					if (weight != Integer.MIN_VALUE) {
@@ -324,6 +336,21 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private String getLabel(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/label ";
+		IQuery q = runtime.run(queryString);
+
+		if (q.getResults().isEmpty())
+			return null;
+
+		return q.getResults().get(0, 0);
+	}
+	
+	/**
+	 * @param topic
+	 * @return
+	 */
+	private String getDescription(Topic topic) {
+		String queryString = "RETURN " + getTMQLIdentifierString(topic)
+		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/description ";
 		IQuery q = runtime.run(queryString);
 
 		if (q.getResults().isEmpty())

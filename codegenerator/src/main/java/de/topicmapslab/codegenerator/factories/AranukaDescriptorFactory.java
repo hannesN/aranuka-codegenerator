@@ -711,7 +711,7 @@ public class AranukaDescriptorFactory {
 
 	    	String queryString = "FOR $c IN // tmcl:topic-role-constraint "
 	    	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
-	    	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + getIdentifierString(topicSI, IdType.SUBJECT_IDENTIFIER) + " ) ] "
+	    	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
 	    	        + "RETURN $c / tmcl:card-max, "
 	    	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
 	    	        + "$c >> traverse tmcl:constrained-topic-type >> indicators >> atomify [0], "
@@ -819,7 +819,7 @@ public class AranukaDescriptorFactory {
     			queryString = "FOR $c IN // tmcl:topic-role-constraint "
         	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
         	        + " AND (. >> traverse tmcl:constrained-role == " + getIdentifierString(roleSI, IdType.SUBJECT_IDENTIFIER) + " ) "
-        	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + getIdentifierString(topicSI, IdType.SUBJECT_IDENTIFIER) + " ) ] "
+        	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
         	        + "RETURN $c / tmcl:card-max, "
         	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
         	        + "$c >> traverse tmcl:constrained-topic-type >> indicators >> atomify [0], "
