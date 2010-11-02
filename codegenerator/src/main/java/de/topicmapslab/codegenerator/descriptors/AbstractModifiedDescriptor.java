@@ -131,6 +131,9 @@ public class AbstractModifiedDescriptor {
 		if (isStatic()) {
 			mods |= JMod.STATIC;
 		}
+		if (isAbstract()) {
+			mods |= JMod.ABSTRACT;
+		}
 	    return mods;
     }
 }

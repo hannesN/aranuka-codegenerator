@@ -258,6 +258,8 @@ public class AranukaDescriptorFactory {
 		if (name == null)
 			name = (String) results.get(1);
 
+		cd.setAbstract(isAbstract(topic));
+		
 		cd.setName(TypeUtility.getJavaName(name));
 
 		// check supertype
@@ -298,6 +300,11 @@ public class AranukaDescriptorFactory {
 	}
 
 	private void generateDefaultItemIdentifier(ClassDescriptor cd) {
+		
+		// no need for a default item identifier in abstract classes 
+		if (cd.isAbstract())
+			return;
+		
 		FieldDescriptor fd = new FieldDescriptor(cd, true, "id", String.class.getName(), false);
 		AnnotationDescriptor ad = new AnnotationDescriptor(fd);
 		ad.setQualifiedName(Id.class.getName());
