@@ -16,7 +16,8 @@
  
 package de.topicmapslab.codegenerator.factories;
 
-import static de.topicmapslab.codegenerator.utils.TMQLPreperator.*;
+import static de.topicmapslab.codegenerator.utils.TMQLPreperator.getIdentifierString;
+import static de.topicmapslab.codegenerator.utils.TMQLPreperator.getTMQLIdentifierString;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -879,6 +880,10 @@ public class AranukaDescriptorFactory {
     		pad = new PrimitiveAttributeDescriptor(ad);
     		pad.setName("persistOnCascade");
     		pad.setValue(true);
+    		
+    		pad = new PrimitiveAttributeDescriptor(ad);
+    		pad.setName("played_role");
+    		pad.setValue(roleTypeSi);
     		
     		// get cardinality of the topic-role constraint of the topic represented by this class descriptor
     		
