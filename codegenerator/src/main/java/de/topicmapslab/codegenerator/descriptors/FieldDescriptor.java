@@ -218,7 +218,7 @@ public class FieldDescriptor implements IAnnoationDescriptor {
 		JClass typeClass = getCodeModeltype(cm, getType(), isMany());
 
 		String name = getRealName();
-		System.out.println(getParent().getQualifiedName()+": "+getName());
+//		System.out.println(getParent().getQualifiedName()+": "+getName());
 
 		JFieldVar field = null;
 		if (typeClass != null) {

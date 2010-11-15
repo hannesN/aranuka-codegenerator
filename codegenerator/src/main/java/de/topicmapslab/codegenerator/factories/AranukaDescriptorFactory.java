@@ -86,6 +86,7 @@ public class AranukaDescriptorFactory {
 	private ModelContentProviderDescriptor modelContentProviderDescriptor;
 	private ModelContainerDescriptor modelContainerDescriptor;
 	private Map<String, ModelContainerDescriptor> modelContainerMap;
+	private Map<String, ClassDescriptor> classesMap;
 
 	private Map<Topic, ClassDescriptor> parsedTopics = new HashMap<Topic, ClassDescriptor>();
 
@@ -149,13 +150,7 @@ public class AranukaDescriptorFactory {
 		if (t.getSubjectIdentifiers().size() == 0)
 			throw new IllegalSchemaException("The topic: " + r.getResults().get(1) + " has no identifier");
 
-		for (Locator l : t.getSubjectIdentifiers()) {
-			siSet.add(l.toExternalForm());
-		}
-
-		ClassDescriptor cd = generateClassDescriptor(siSet, r, t);
-
-		addAranukaMappingClass(cd);
+		ClassDescriptor cd = generateClassDescriptor(t);
 
 		kuriaFactory.addKuriaAnnotations(cd, t);
 
@@ -171,6 +166,9 @@ public class AranukaDescriptorFactory {
      */
     private void init(String packageName) throws TMAPIException, IOException, IllegalSchemaException {
     	codeGenerator = new CodeGenerator();
+    	
+    	classesMap = new HashMap<String, ClassDescriptor>();
+    	
     	pkgDescriptor = new PackageDescriptor(codeGenerator);
     	pkgDescriptor.setName(packageName);
     
@@ -242,34 +240,49 @@ public class AranukaDescriptorFactory {
     	modelHandlerDescriptor.addModelContainer(modelContainerDescriptor);
     }
 
-	private ClassDescriptor generateClassDescriptor(Set<String> siSet, IResult r, Topic topic)
+	private ClassDescriptor generateClassDescriptor(Topic topic)
 	        throws IllegalSchemaException {
+		
+		Set<String> siSet = new HashSet<String>();
+		for (Locator l : topic.getSubjectIdentifiers()) {
+			siSet.add(l.toExternalForm());
+		}
 		String si = TMQLPreperator.getIdentifierString(siSet.iterator().next(), IdType.SUBJECT_IDENTIFIER);
 		
 		
-		List<Object> results = r.getResults();
-
 		ClassDescriptor cd = new ClassDescriptor(pkgDescriptor);
 		parsedTopics.put(topic, cd);
+		
 
 		// looking for class annotation
 
 		String name = getClassName(si);
 
 		if (name == null)
-			name = (String) results.get(1);
+			name = (String) topic.getNames().iterator().next().getValue();
 
 		cd.setAbstract(isAbstract(topic));
-		
 		cd.setName(TypeUtility.getJavaName(name));
+		
+		classesMap.put(cd.getName(), cd);
 
 		// check supertype
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
-		        + " >> supertypes >> characteristics tm:name >> atomify[0]";
+		        + " >> supertypes >> characteristics tm:name >> atomify[0], "
+		        + getTMQLIdentifierString(topic)
+		        + " >> supertypes [0]";
 		IQuery q = runtime.run(queryString);
 		if (!q.getResults().isEmpty()) {
-			String stName = q.getResults().get(0, 0);
-			cd.setExtendsName(TypeUtility.getJavaName(stName));
+			// XXX SVEN why  empty tuples??
+			if (q.getResults().get(0, 0)  instanceof String) {
+				String stName = q.getResults().get(0, 0);
+				cd.setExtendsName(TypeUtility.getJavaName(stName));
+				
+				if (classesMap.get(cd.getExtendsName())==null) {
+					Topic t = q.getResults().get(0, 1);
+					generateClassDescriptor(t);
+				}
+			}
 		}
 
 		AnnotationDescriptor ad = new AnnotationDescriptor(cd);
@@ -283,8 +296,8 @@ public class AranukaDescriptorFactory {
 		generateIdentifierField(cd, si, IdType.SUBJECT_LOCATOR);
 		generateIdentifierField(cd, si, IdType.ITEM_IDENTIFIER);
 
-		// if we still have no id field generate an item identifier
-		if (cd.getFields().size() == 0) {
+		// if we still have no id field in this or any super class: generate an item identifier
+		if (getNumberOfIdFields(cd) == 0) {
 			generateDefaultItemIdentifier(cd);
 		}
 
@@ -297,8 +310,24 @@ public class AranukaDescriptorFactory {
 
 		checkCategory(topic, cd, name);
 
+		addAranukaMappingClass(cd);
+		
 		return cd;
 	}
+
+	/**
+     * @param cd
+     * @return
+     */
+    private int getNumberOfIdFields(ClassDescriptor cd) {
+    	int counter = cd.getIdFields().size();
+    	
+    	if (cd.getExtendsName()!=null) {
+    		return counter + getNumberOfIdFields(classesMap.get(cd.getExtendsName()));
+    	}
+    	
+	    return counter;
+    }
 
 	private void generateDefaultItemIdentifier(ClassDescriptor cd) {
 		
@@ -362,7 +391,7 @@ public class AranukaDescriptorFactory {
 		if (name != null)
 			fd.setName(name);
 
-		// adding the id field ti the idFiels for equals
+		// adding the id field to the idFiels for equals
 		cd.addIdField(fd);
 
 		Topic constraint = (Topic) q.getResults().get(0, 1);
