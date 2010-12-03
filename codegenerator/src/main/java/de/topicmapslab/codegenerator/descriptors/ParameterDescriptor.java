@@ -35,6 +35,11 @@ public class ParameterDescriptor {
 	
 	private boolean many;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param parent the parent {@link MethodDescriptor}
+	 */
 	public ParameterDescriptor(MethodDescriptor parent) {
 		this.parent = parent;
 		this.parent.addParameter(this);
@@ -82,6 +87,12 @@ public class ParameterDescriptor {
     	this.type = type;
     }
 	
+    /**
+     * Generates the parameter for the method
+     * 
+     * @param method the method which has this parameter
+     * @param cm the factory
+     */
 	public void generateParameter(JMethod method, JCodeModel cm) {
 		JClass typeClass = getCodeModeltype(cm, getType(), isMany());
 		

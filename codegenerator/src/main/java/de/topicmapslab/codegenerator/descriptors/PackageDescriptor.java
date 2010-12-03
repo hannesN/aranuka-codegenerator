@@ -86,6 +86,11 @@ public class PackageDescriptor implements IClassContainer {
 		return classes;
 	}
 	
+	/**
+	 * Generates the package and all children with the code model factory
+	 * @param cm the factory
+	 * @throws Exception
+	 */
 	public void generatePackage(JCodeModel cm) throws Exception {
 		JPackage pack = cm._package(name);
 		

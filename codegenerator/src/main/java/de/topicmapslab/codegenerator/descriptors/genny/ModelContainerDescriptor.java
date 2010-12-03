@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JCatchBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassContainer;
 import com.sun.codemodel.JCodeModel;
@@ -35,9 +36,11 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JTryBlock;
 import com.sun.codemodel.JVar;
 
 import de.topicmapslab.aranuka.Session;
+import de.topicmapslab.aranuka.exception.AranukaException;
 import de.topicmapslab.codegenerator.descriptors.ClassDescriptor;
 import de.topicmapslab.codegenerator.descriptors.PackageDescriptor;
 import de.topicmapslab.kuria.annotation.Text;
@@ -160,8 +163,18 @@ public class ModelContainerDescriptor extends ClassDescriptor {
 		// set body (session.getAll)
 		JExpression retrieveExpr = sessionRef.invoke("getAll").arg(p); 
 		JExpression returnExpr = JExpr._new(arrayListType).arg(retrieveExpr);
-		getMethod.body()._return(returnExpr);
-	    JAnnotationUse annotate = getMethod.annotate(SuppressWarnings.class);
+
+		JTryBlock tryBlock = getMethod.body()._try();
+		tryBlock.body()._return(returnExpr);
+		
+		
+		JClass aranukaExc = cm.directClass(AranukaException.class.getName());
+		JCatchBlock catchBlock = tryBlock._catch(aranukaExc);
+		JVar catchParam = catchBlock.param("e");
+		JExpression runtimeException = JExpr._new(cm._ref(RuntimeException.class)).arg(catchParam);
+		catchBlock.body()._throw(runtimeException);
+	    
+		JAnnotationUse annotate = getMethod.annotate(SuppressWarnings.class);
 		JAnnotationArrayMember param = annotate.paramArray("value");
 		param.param("unchecked");
 		param.param("rawtypes");

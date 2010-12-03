@@ -56,12 +56,20 @@ public class FieldDescriptor implements IAnnoationDescriptor {
 	private boolean generateAddAndRemove;
 
 	/**
+     * Constructor
      * 
+     * @param parent the parent of the field descriptor
      */
 	public FieldDescriptor(ClassDescriptor parent) {
 		this(parent, true);
 	}
 	
+	/**
+     * Constructor
+     * 
+     * @param parent the parent of the field descriptor
+     * @param generateMethods flag whether to generate getter/setter and if necessary add/remove methods
+     */
 	public FieldDescriptor(ClassDescriptor parent, boolean generateMethods) {
 		this(parent, generateMethods, null, null, false);
 	}

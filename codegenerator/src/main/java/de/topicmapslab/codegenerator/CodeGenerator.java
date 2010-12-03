@@ -27,7 +27,7 @@ import de.topicmapslab.codegenerator.descriptors.IClassContainer;
 import de.topicmapslab.codegenerator.descriptors.PackageDescriptor;
 
 /**
- * 
+ * The codegenerator gets a set of package descriptions and generstes the code using JCodeModel.
  * 
  * @author Hannes Niederhausen
  *
@@ -36,6 +36,11 @@ public class CodeGenerator {
 
 	List<PackageDescriptor> packages;
 	
+	/**
+	 * Generates the code using the configured {@link PackageDescriptor}.
+	 * @param targetDirectory the target directory
+	 * @throws CodeGeneratorException the exception if an error occurs
+	 */
 	public void generateCode(File targetDirectory) throws CodeGeneratorException {
 		try {
 			

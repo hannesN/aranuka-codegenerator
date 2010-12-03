@@ -39,7 +39,10 @@ import de.topicmapslab.codegenerator.descriptors.FieldDescriptor;
 import de.topicmapslab.codegenerator.descriptors.PackageDescriptor;
 
 /**
- * @author Hannes Niederhausenh
+ * The {@link ModelContentProviderDescriptor} is used to describe a ModelContentProvider.
+ * This provider has a ModelContainer and returns all instances of a type for a field.
+ * 
+ * @author Hannes Niederhausen
  * 
  */
 public class ModelContentProviderDescriptor extends ClassDescriptor {
@@ -66,13 +69,24 @@ public class ModelContentProviderDescriptor extends ClassDescriptor {
 		return supportedFieldList;
 	}
 
+	/**
+	 * 
+	 * Adds a field descriptor which needs a content proposal.
+	 * 
+	 * @param fd the fielddescriptor
+	 */
 	public void addSupportedField(FieldDescriptor fd) {
 		if (supportedFieldList == null)
 			supportedFieldList = new ArrayList<FieldDescriptor>();
 		supportedFieldList.add(fd);
 	}
 
-	
+	/**
+	 * 
+	 * Removes a field descriptor which needs a content proposal.
+	 * 
+	 * @param fd the fielddescriptor
+	 */
 	public void removeSupportedField(FieldDescriptor fd) {
 		if (supportedFieldList != null)
 			supportedFieldList.remove(fd);

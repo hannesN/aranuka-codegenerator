@@ -24,6 +24,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.topicmapslab.aranuka.annotations.Name;
+import de.topicmapslab.aranuka.annotations.Topic;
 import de.topicmapslab.codegenerator.CodeGenerator;
 import de.topicmapslab.codegenerator.CodeGeneratorException;
 import de.topicmapslab.codegenerator.descriptors.AbstractAttributeDescriptor;
@@ -31,7 +33,6 @@ import de.topicmapslab.codegenerator.descriptors.AnnotationDescriptor;
 import de.topicmapslab.codegenerator.descriptors.ClassDescriptor;
 import de.topicmapslab.codegenerator.descriptors.EnumerationAttributeDescriptor;
 import de.topicmapslab.codegenerator.descriptors.FieldDescriptor;
-import de.topicmapslab.codegenerator.descriptors.IAnnotationConstants;
 import de.topicmapslab.codegenerator.descriptors.MethodDescriptor;
 import de.topicmapslab.codegenerator.descriptors.PackageDescriptor;
 import de.topicmapslab.codegenerator.descriptors.ParameterDescriptor;
@@ -99,7 +100,7 @@ public class CodeGeneratorTest {
 		cd.setName("OtherTestClass");
 		
 		AnnotationDescriptor ad = new AnnotationDescriptor(cd);
-		ad.setQualifiedName(IAnnotationConstants.Aranuka.TOPIC);
+		ad.setQualifiedName(Topic.class.getName());
 		
 		AbstractAttributeDescriptor aad = new PrimitiveAttributeDescriptor(ad);
 		aad.setName("hm");
@@ -123,7 +124,7 @@ public class CodeGeneratorTest {
 		fd.setMany(true);
 
 		ad = new AnnotationDescriptor(fd);
-		ad.setQualifiedName(IAnnotationConstants.Aranuka.NAME);
+		ad.setQualifiedName(Name.class.getName());
 		
 		aad = new PrimitiveArrayAttributeDescriptor(ad);
 		aad.setName("subject_identifiers");
@@ -140,7 +141,7 @@ public class CodeGeneratorTest {
 		md.setReturnType(String.class.getName());
 		
 		ad = new AnnotationDescriptor(md);
-		ad.setQualifiedName(IAnnotationConstants.Aranuka.NAME);
+		ad.setQualifiedName(Name.class.getName());
 		
 		aad = new PrimitiveArrayAttributeDescriptor(ad);
 		aad.setName("some_number_stuff");
@@ -194,6 +195,11 @@ public class CodeGeneratorTest {
 		assertEquals(1, this.fixture.getPackages().size());
 	}
 
+	/**
+	 * Test to add a primitive attribute
+	 * 
+	 * @throws CodeGeneratorException
+	 */
 	@Test(expected=CodeGeneratorException.class)
 	public void testAddPrimitiveAttributes() throws CodeGeneratorException {
 		CodeGenerator codegen = new CodeGenerator();
@@ -202,7 +208,7 @@ public class CodeGeneratorTest {
 		cd.setName("Test1");
 		
 		AnnotationDescriptor ad = new AnnotationDescriptor(cd);
-		ad.setQualifiedName(IAnnotationConstants.Aranuka.TOPIC);
+		ad.setQualifiedName(Topic.class.getName());
 		
 		AbstractAttributeDescriptor aad = new PrimitiveAttributeDescriptor(ad);
 		aad.setName("hm");

@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,11 +89,33 @@ public class AranukaDescriptorFactory {
 
 	private Map<Topic, ClassDescriptor> parsedTopics = new HashMap<Topic, ClassDescriptor>();
 
+	/**
+	 * Constructor
+	 * 
+	 * @param packageName name for the package to create. All generated classes will be added in this package
+	 * @param filename the name of the xtm file containing the schema
+	 * @throws TMAPIException
+	 * @throws IOException
+	 * @throws IllegalSchemaException
+	 */
 	public AranukaDescriptorFactory(String packageName, String filename) throws TMAPIException, IOException,
 	        IllegalSchemaException {
 		this(packageName, new FileInputStream(filename), true, true);
 	}
 
+	/**
+	 * 
+	 * Constructor
+	 * 
+	 * @param tms the {@link TopicMapSystem} used to create the topic map
+	 * @param tm the topic map containing the schema
+	 * @param packageName  packageName name for the package to create. All generated classes will be added in this package
+	 * @param createGennyClasses flag wether to create genny classes
+	 * @param createKuriaAnnotation flag wether to genrate Kuria annotations
+	 * @throws TMAPIException
+	 * @throws IOException
+	 * @throws IllegalSchemaException
+	 */
 	public AranukaDescriptorFactory(TopicMapSystem tms, TopicMap tm, String packageName, boolean createGennyClasses,
 	        boolean createKuriaAnnotation) throws TMAPIException, IOException, IllegalSchemaException {
 		runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, tm);
@@ -145,7 +166,6 @@ public class AranukaDescriptorFactory {
 		addNameMapEntry((String) r.getResults().get(2), (String) r.getResults().get(1));
 		
 
-		Set<String> siSet = new HashSet<String>();
 		// parse identifier
 		if (t.getSubjectIdentifiers().size() == 0)
 			throw new IllegalSchemaException("The topic: " + r.getResults().get(1) + " has no identifier");
@@ -204,7 +224,7 @@ public class AranukaDescriptorFactory {
     }
 
 	private void parseTopicTypes() throws IllegalSchemaException {
-    	String queryString = "FOR $t IN // tmcl:topic-type\n"
+    	String queryString = "FOR $t IN // tmcl:topic-type [ . != http://onotoa.topicmapslab.de/annotation ] "
     	        + "RETURN $t";
     	IQuery query = runtime.run(queryString);
     
@@ -744,7 +764,7 @@ public class AranukaDescriptorFactory {
 	// TODO recode?
     protected void createBinaryAssociations(ClassDescriptor cd, String assocTypeSi, String roleTypeSi, String topicSI,
             IQuery query) throws IllegalSchemaException {
-	    for (IResult r : query.getResults()) {
+	    for (@SuppressWarnings("unused") IResult r : query.getResults()) {
 
 	    	String queryString = "FOR $c IN // tmcl:topic-role-constraint "
 	    	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)

@@ -45,6 +45,11 @@ public class MethodDescriptor extends AbstractModifiedDescriptor implements IAnn
 
 	private List<ParameterDescriptor> parameters;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param parent parent {@link ClassDescriptor}
+	 */
 	public MethodDescriptor(ClassDescriptor parent) {
 		this.parent = parent;
 		this.parent.addMethod(this);
@@ -150,6 +155,12 @@ public class MethodDescriptor extends AbstractModifiedDescriptor implements IAnn
 			this.parameters.remove(pd);
 	}
 
+	/**
+	 * Generates the method using the codemodel factory
+	 * @param type the codemodel representation of the parent
+	 * @param cm the factory
+	 * @throws Exception
+	 */
 	public final void generateMethod(JDefinedClass type, JCodeModel cm) throws Exception {
 		JType retType = cm.VOID;
 		if ((getReturnType()!=null) && (!"void".equals(getReturnType()))) {

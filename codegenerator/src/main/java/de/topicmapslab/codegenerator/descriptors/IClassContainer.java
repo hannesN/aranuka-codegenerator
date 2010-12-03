@@ -19,13 +19,25 @@ package de.topicmapslab.codegenerator.descriptors;
 import java.util.List;
 
 /**
- * @author niederhausen
+ * Interface for classes and packages which may contain classes.
+ * 
+ * @author Hannes Niederhausen
  *
  */
 public interface IClassContainer {
 
+	/**
+	 * Adds a child to the container
+	 * 
+	 * @param cd the {@link ClassDescriptor} to add
+	 */
 	public abstract void addChildClass(ClassDescriptor cd);
 
+	/**
+	 * Removes a child to the container
+	 * 
+	 * @param cd the {@link ClassDescriptor} to remove
+	 */
 	public abstract void removeChildClass(ClassDescriptor cd);
 
 	/**

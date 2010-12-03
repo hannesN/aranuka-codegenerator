@@ -138,12 +138,20 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
 		return implementsList;
 	}
 
+	/**
+	 * Adds a qualified name of an interface to the implements list
+	 * @param qName the qualified name of the interface
+	 */
 	public void addImplementInterface(String qName) {
 		if (implementsList == null)
 			implementsList = new ArrayList<String>();
 		implementsList.add(qName);
 	}
 
+	/**
+	 * Removes a qualified name of an interface from the implements list
+	 * @param qName the qualified name of the interface
+	 */
 	public void removeImplementInterface(String qName) {
 		if (implementsList != null)
 			implementsList.add(qName);
@@ -196,12 +204,20 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
 		return methods;
 	}
 
+	/**
+	 * Adds a method to the class
+	 * @param md the {@link MethodDescriptor} of the method to add
+	 */
 	public void addMethod(MethodDescriptor md) {
 		if (methods == null)
 			methods = new ArrayList<MethodDescriptor>();
 		methods.add(md);
 	}
 
+	/**
+	 * Removes a method from the class
+	 * @param md the {@link MethodDescriptor} of the method to remove
+	 */
 	public void removeMethod(MethodDescriptor md) {
 		if (methods != null)
 			methods.remove(md);
@@ -264,12 +280,20 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
     	return idFields;
     }
     
+    /**
+     * Adds the given field descriptor to the list of id field. This means it is part of the hashcode/equals generation.
+     * @param fd the {@link FieldDescriptor}
+     */
     public void addIdField(FieldDescriptor fd) {
     	if (idFields==null)
     		idFields = new ArrayList<FieldDescriptor>();
     	idFields.add(fd);    	
     }
     
+    /**
+     * Removes the given field descriptor from the id field list.
+     * @param fd the {@link FieldDescriptor}
+     */
     public void removeIdField(FieldDescriptor fd) {
     	if (idFields!=null)
     		idFields.remove(fd);    	

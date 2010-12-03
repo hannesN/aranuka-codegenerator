@@ -97,6 +97,15 @@ public class AnnotationDescriptor {
 			attributes.remove(ad);
 	}
 
+	/**
+	 * 
+	 * Generates an annotation.
+	 * 
+	 * @param annoatable the annotatable object
+	 * @param cm the codemodel to use as factory
+	 * @throws JClassAlreadyExistsException
+	 * @throws CodeGeneratorException
+	 */
 	public void generateAnnotation(JAnnotatable annoatable, JCodeModel cm) throws JClassAlreadyExistsException, CodeGeneratorException {
 		JClass annoType = cm._getClass(getQualifiedName());
 		if (annoType==null) {
