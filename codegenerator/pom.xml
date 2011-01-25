@@ -53,6 +53,10 @@
 					<artifactId>tmapix-io</artifactId>
 					<groupId>org.tmapix</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>ctm-writer</artifactId>
+					<groupId>de.topicmapslab</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -78,6 +82,12 @@
 			<artifactId>aranuka-runtime</artifactId>
 			<version>1.0.2-SNAPSHOT</version>
 			<type>jar</type>
+			<exclusions>
+				<exclusion>
+					<artifactId>ctm-writer</artifactId>
+					<groupId>de.topicmapslab</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.tmapix</groupId>
@@ -104,6 +114,11 @@
 			<version>1.6.1</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.topicmapslab</groupId>
+			<artifactId>ctm-writer</artifactId>
+			<version>1.9.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<repositories>
