@@ -447,7 +447,7 @@ public class AranukaDescriptorFactory {
 			}
 			Topic tnc = (Topic) r.get(3);
 
-			if (!createField(tnc))
+			if (!isCreateFieldAllowed(tnc))
 				continue;
 
 			FieldDescriptor fd = new FieldDescriptor(cd);
@@ -488,7 +488,7 @@ public class AranukaDescriptorFactory {
 			if ("none".equals(r.get(2))) {
 				throw new IllegalSchemaException("Occurrence: " + r.get(1) + " has no subject identifier!");
 			}
-			if (!createField(toc))
+			if (!isCreateFieldAllowed(toc))
 				continue;
 
 			FieldDescriptor fd = new FieldDescriptor(cd);
@@ -603,7 +603,7 @@ public class AranukaDescriptorFactory {
 		query = runtime.run(queryString);
 
 		Topic topicRoleConstr = query.getResults().get(0, 1);
-		if (!createField(topicRoleConstr))
+		if (!isCreateFieldAllowed(topicRoleConstr))
 			return;
 
 		boolean isMany = isMany(query.getResults());
@@ -706,7 +706,7 @@ public class AranukaDescriptorFactory {
 
 		q2 = runtime.run(queryString);
 		Topic otherTopicRoleConstr = (Topic) q2.getResults().get(0, 0);
-		if (!createField(otherTopicRoleConstr))
+		if (!isCreateFieldAllowed(otherTopicRoleConstr))
 			return;
 
 		FieldDescriptor fd = new FieldDescriptor(cd);
@@ -764,7 +764,7 @@ public class AranukaDescriptorFactory {
 	// TODO recode?
     protected void createBinaryAssociations(ClassDescriptor cd, String assocTypeSi, String roleTypeSi, String topicSI,
             IQuery query) throws IllegalSchemaException {
-	    for (@SuppressWarnings("unused") IResult r : query.getResults()) {
+//	    for (@SuppressWarnings("unused") IResult r : query.getResults()) {
 
 	    	String queryString = "FOR $c IN // tmcl:topic-role-constraint "
 	    	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
@@ -791,7 +791,7 @@ public class AranukaDescriptorFactory {
 	    			name = TypeUtility.getFieldName(playerName);
 	    		}
 
-	    		if (!createField(topicRoleConstr))
+	    		if (!isCreateFieldAllowed(topicRoleConstr))
 	    			continue;
 
 	    		if (roleCombinationConstraintExists(assocTypeSi, topicSI, roleTypeSi, playerSi, roleSi)) {
@@ -815,7 +815,7 @@ public class AranukaDescriptorFactory {
 	    			addSupportedField(fd);
 	    		}
 	    	}
-	    }
+//	    }
     }
 
 	/**
@@ -828,10 +828,27 @@ public class AranukaDescriptorFactory {
      */
     protected FieldDescriptor createField(ClassDescriptor cd, boolean isMany, Topic playerTopic, String name)
             throws IllegalSchemaException {
+	    // check if the name is already used:
+	    int counter = 0;
+	    boolean found = false;
+	    String newName = name;
+	    do {
+	    	found = false;
+	    	for (FieldDescriptor tmpFd : cd.getFields()) {
+		    	if (tmpFd.getName().equals(newName)) {
+		    		found=true;
+		    		// add number to field name
+		    	    counter++;
+		    	    newName = name + counter;
+		    	}
+		    }
+	    } while (found);
+	    
 	    FieldDescriptor fd = new FieldDescriptor(cd);
 	    fd.setType(parseTopicType(playerTopic).getQualifiedName());
 	    // TODO name set
-	    fd.setName(name);
+	    
+	    fd.setName(newName);
 	    fd.setMany(isMany);
 	    return fd;
     }
@@ -894,7 +911,7 @@ public class AranukaDescriptorFactory {
     				}
     				
     				// if annotation generate field is false we remove the container and return
-    				if (!createField((Topic) r.get(4))) {
+    				if (!isCreateFieldAllowed((Topic) r.get(4))) {
     					cd.removeChildClass(assocCD);
     					return;
     				}
@@ -1066,7 +1083,7 @@ public class AranukaDescriptorFactory {
 	 * @return <code>true</code> if the annotation is missing or its value is
 	 *         <code>true</code>
 	 */
-	private boolean createField(Topic constraint) {
+	private boolean isCreateFieldAllowed(Topic constraint) {
 		String queryString = "RETURN " + getTMQLIdentifierString(constraint) + " "
 		        + "/ http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/generateattribute ";
 
