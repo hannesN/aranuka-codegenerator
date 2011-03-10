@@ -39,6 +39,13 @@ import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
  */
 public class TMQLPreperator {
 
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @throws TMAPIException
+	 * @throws IOException
+	 */
 	public static ITMQLRuntime createRuntime(InputStream is) throws TMAPIException, IOException {
 		TopicMapSystemFactoryImpl tmsFac = new TopicMapSystemFactoryImpl();
 

@@ -27,17 +27,35 @@ public class POJOGenerationException extends Exception {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructor
+	 */
 	public POJOGenerationException() {
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param message the message
+	 */
 	public POJOGenerationException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param cause the causing exception
+	 */
 	public POJOGenerationException(Throwable cause) {
 		super(cause);
 	}
 
+	/**
+	 * Constructor
+	 * @param message the message
+	 * @param cause the causing exception
+	 */
 	public POJOGenerationException(String message, Throwable cause) {
 		super(message, cause);
 	}

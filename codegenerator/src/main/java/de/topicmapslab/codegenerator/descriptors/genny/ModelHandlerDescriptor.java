@@ -77,12 +77,20 @@ public class ModelHandlerDescriptor extends ClassDescriptor {
 	    return modelContainerList;
     }
     
+    /**
+     * Adds another ModelContainer used for multiple tabs in the ModelView
+     * @param mcd
+     */
     public void addModelContainer(ModelContainerDescriptor mcd) {
     	if (modelContainerList==null)
     		modelContainerList = new ArrayList<ModelContainerDescriptor>();
     	modelContainerList.add(mcd);
     }
     
+    /**
+     * Removes another ModelContainer used for multiple tabs in the ModelView
+     * @param mcd
+     */
     public void removeModelContainer(ModelContainerDescriptor mcd) {
     	if (modelContainerList==null)
     		modelContainerList = new ArrayList<ModelContainerDescriptor>();
@@ -108,6 +116,10 @@ public class ModelHandlerDescriptor extends ClassDescriptor {
 		this.classes.add(cd);
 	}
 
+	/**
+	 * Removes a {@link ClassDescriptor} from che CLASS_SET
+	 * @param cd
+	 */
 	public void removeClassDescriptor(ClassDescriptor cd) {
 		if (this.classes != null)
 			this.classes.add(cd);
@@ -131,12 +143,21 @@ public class ModelHandlerDescriptor extends ClassDescriptor {
 		return this.names;
 	}
 
+	/**
+	 * Adds a name for the topic (type) with the given subject identifier
+	 * @param si subject identifier of the topic
+	 * @param name name of the topic
+	 */
 	public void putName(String si, String name) {
 		if (this.names == null)
 			this.names = new HashMap<String, String>();
 		this.names.put(si, name);
 	}
 
+	/**
+	 * Removes a name for the topic (type) with the given subject identifier
+	 * @param si subject identifier of the named topic
+	 */
 	public void removeName(String si) {
 		if (this.names != null)
 			this.names.remove(si);

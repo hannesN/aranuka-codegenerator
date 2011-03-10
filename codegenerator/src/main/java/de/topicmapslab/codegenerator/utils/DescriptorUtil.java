@@ -99,16 +99,32 @@ public class DescriptorUtil {
 		throw new RuntimeException("Invalid type! " + type + " is no primitive datatype");
 	}
 
+	/**
+	 * Chekcs if the given type is a primitive type
+	 * @param type the type string
+	 * @return
+	 */
 	public static boolean hasPrimitiveType(String type) {
 		return ("boolean".equals(type)) || ("byte".equals(type)) || ("short".equals(type))
 		        || ("int".equals(type)) || ("long".equals(type)) || ("float".equals(type))
 		        || ("double".equals(type)) || ("char".equals(type));
 	}
 	
+	/**
+	 * Checks if the given type is boolean
+	 * 
+	 * @param type the type string
+	 * @return
+	 */
 	public static boolean isBoolean(String type) {
 		return ("boolean".equals(type)) || (Boolean.class.getName().equals(type));
 	}
 	
+	/**
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
 	public static String field2Method(String fieldName) {
 		StringBuilder b = new StringBuilder();
 		b.append(Character.toUpperCase(fieldName.charAt(0)));

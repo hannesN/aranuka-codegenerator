@@ -20,11 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.tmapi.core.Locator;
-import org.tmapi.core.Topic;
-
-import de.topicmapslab.codegenerator.factories.POJOGenerationException;
-
 /**
  * 
  * @author Sven Krosse
@@ -32,20 +27,12 @@ import de.topicmapslab.codegenerator.factories.POJOGenerationException;
  */
 public class TypeUtility {
 
-	public static String getJavaName(final Topic topic) throws POJOGenerationException {
-		return getJavaName(getLocator(topic));
-	}
-
-	private static final String getJavaName(Locator locator) {
-		String reference = locator.getReference();
-		int index = reference.lastIndexOf("/");
-		if (index != -1) {
-			reference = reference.substring(index + 1);
-		}
-
-		return getJavaName(reference);
-	}
-
+	/**
+	 * Returns a Java compliant name for the topic
+	 * 
+	 * @param name a name which will be made Java compliant
+	 * @return 
+	 */
 	public static String getJavaName(String name) {
 		StringBuilder builder = new StringBuilder();
 		char lastChar = name.charAt(0);
@@ -65,58 +52,16 @@ public class TypeUtility {
 		return builder.toString();
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static String getFieldName(String name) {
 		String tmp = getJavaName(name);
 		return Character.toLowerCase(tmp.charAt(0)) + tmp.substring(1);
 	}
-
-	public static final String getTypeAttribute(Locator locator) {
-		String reference = locator.getReference();
-		int index = reference.lastIndexOf("/");
-		if (index != -1) {
-			reference = reference.substring(index + 1);
-		}
-		if (reference.equalsIgnoreCase("topic-name")) {
-			reference = "tm:name";
-		}
-
-		String tmp = getJavaName(reference);
-		tmp = Character.toLowerCase(tmp.charAt(0)) + tmp.substring(1);
-		return tmp;
-	}
-
-	public static final Locator getLocator(Topic topic) throws POJOGenerationException {
-
-		if (!topic.getSubjectIdentifiers().isEmpty()) {
-			for (Locator locator : topic.getSubjectIdentifiers()) {
-				if (locator.getReference().contains("tinytim")) {
-					continue;
-				}
-				return locator;
-			}
-		}
-
-		if (!topic.getSubjectLocators().isEmpty()) {
-			for (Locator locator : topic.getSubjectLocators()) {
-				if (locator.getReference().contains("tinytim")) {
-					continue;
-				}
-				return locator;
-			}
-		}
-
-		if (!topic.getItemIdentifiers().isEmpty()) {
-			for (Locator locator : topic.getItemIdentifiers()) {
-				if (locator.getReference().contains("tinytim")) {
-					continue;
-				}
-				return locator;
-			}
-
-		}
-		throw new POJOGenerationException("Topic with id " + topic.getId() + "has no identifier");
-	}
-
+	
 	private static final Map<String, Class<?>> xsdToJavaMappings = new HashMap<String, Class<?>>();
 	static {
 		xsdToJavaMappings.put("http://www.w3.org/2001/XMLSchema#string", String.class);
@@ -131,23 +76,15 @@ public class TypeUtility {
 		xsdToJavaMappings.put("http://www.w3.org/2001/XMLSchema#decimal", float.class);
 	}
 
-	public static Class<?> toJavaType(final Locator datatype) {
-		return toJavaType(datatype.getReference());
-	}
-
+	/**
+	 * Returns the class object for the given datatype
+	 * @param datatype the IRI for the xsd datatype
+	 * @return
+	 */
 	public static Class<?> toJavaType(final String datatype) {
 		if (xsdToJavaMappings.containsKey(datatype)) {
 			return xsdToJavaMappings.get(datatype);
 		}
 		return String.class;
 	}
-
-	public static String field2Method(String fieldName) {
-		StringBuilder b = new StringBuilder();
-		b.append(Character.toUpperCase(fieldName.charAt(0)));
-		b.append(fieldName.substring(1));
-
-		return b.toString();
-	}
-
 }

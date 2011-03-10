@@ -102,12 +102,20 @@ public class ModelContainerDescriptor extends ClassDescriptor {
 		return modelClasses;
 	}
 
+	/**
+	 * Adds a {@link ClassDescriptor} which represents an annotated class
+	 * @param cd the {@link ClassDescriptor} which should be used in this class.
+	 */
 	public void addModelDescriptor(ClassDescriptor cd) {
 		if (modelClasses == null)
 			modelClasses = new ArrayList<ClassDescriptor>();
 		modelClasses.add(cd);
 	}
 
+	/**
+	 * Removes an added {@link ClassDescriptor} from the set of annotated classes.
+	 * @param cd
+	 */
 	public void removeModelDescriptor(ClassDescriptor cd) {
 		if (modelClasses == null)
 			modelClasses.remove(cd);
@@ -122,12 +130,21 @@ public class ModelContainerDescriptor extends ClassDescriptor {
     	return titleMap;
     }
     
+    /**
+     * Puts a title text used for a MediatorNode when creating a Children annotation
+     * @param key the {@link ClassDescriptor} which is the type of the annotated field
+     * @param title the title of the the children annotation
+     */
     public void putTitle(ClassDescriptor key, String title) {
     	if (titleMap == null)
     		titleMap = new HashMap<ClassDescriptor, String>();
     	titleMap.put(key, title);
     }
     
+    /**
+     * Removes the title from the title map
+     * @param key the {@link ClassDescriptor} to remove
+     */
     public void removeTitle(ClassDescriptor key) {
     	if (titleMap != null)
     		titleMap.remove(key);
@@ -210,8 +227,9 @@ public class ModelContainerDescriptor extends ClassDescriptor {
 	}
 
 	/**
-     * @param cd
-     * @return
+	 * 
+     * @param cd the {@link ClassDescriptor} which is the type of the node attribute
+     * @return the title for a {@link ClassDescriptor} used in a children annotation (mediator node text)
      */
     private String getTitle(ClassDescriptor cd) {
     	String title = getTitleMap().get(cd);
