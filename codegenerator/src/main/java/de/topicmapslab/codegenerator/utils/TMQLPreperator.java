@@ -30,14 +30,17 @@ import org.tmapix.io.XTMTopicMapReader;
 
 import de.topicmapslab.aranuka.enummerations.IdType;
 import de.topicmapslab.majortom.core.TopicMapSystemFactoryImpl;
-import de.topicmapslab.tmql4j.common.core.runtime.TMQLRuntimeFactory;
-import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.components.processor.runtime.TMQLRuntimeFactory;
+import de.topicmapslab.tmql4j.path.components.processor.runtime.TmqlRuntime2007;
 
 /**
  * @author Hannes Niederhausen
  * 
  */
 public class TMQLPreperator {
+
+	private static TopicMap topicMap;
 
 	/**
 	 * 
@@ -51,14 +54,14 @@ public class TMQLPreperator {
 
 		TopicMapSystem tms = tmsFac.newTopicMapSystem();
 
-		TopicMap tm = tms.createTopicMap("http://psi.topicmapslab.de/codegen");
+		topicMap = tms.createTopicMap("http://psi.topicmapslab.de/codegen");
 
 		TopicMapReader reader = null;
-		reader = new XTMTopicMapReader(tm, is, "http://genny.codegen.de/");
+		reader = new XTMTopicMapReader(topicMap, is, "http://genny.codegen.de/");
 
 		reader.read();
 
-		ITMQLRuntime runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, tm);
+		ITMQLRuntime runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, TmqlRuntime2007.TMQL_2007 );
 
 		return runtime;
 	}

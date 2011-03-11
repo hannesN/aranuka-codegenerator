@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import org.tmapi.core.Topic;
+import org.tmapi.core.TopicMap;
 
 import de.topicmapslab.aranuka.annotations.Occurrence;
 import de.topicmapslab.codegenerator.descriptors.AbstractAttributeDescriptor;
@@ -38,8 +39,8 @@ import de.topicmapslab.kuria.annotation.widgets.Group;
 import de.topicmapslab.kuria.annotation.widgets.Hidden;
 import de.topicmapslab.kuria.annotation.widgets.List;
 import de.topicmapslab.kuria.annotation.widgets.TextField;
-import de.topicmapslab.tmql4j.common.model.query.IQuery;
-import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.query.IQuery;
 
 /**
  * @author Hannes Niederhausen
@@ -48,10 +49,12 @@ import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
 class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 
 	private final ITMQLRuntime runtime;
+	private final TopicMap topicMap;
 
-	public KuriaDescriptorFactory(ITMQLRuntime runtime) {
+	public KuriaDescriptorFactory(ITMQLRuntime runtime, TopicMap topicMap) {
 		super();
 		this.runtime = runtime;
+		this.topicMap = topicMap;
 	}
 
 	/**
@@ -193,7 +196,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private boolean isReadOnly(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/read-only ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return false;
@@ -213,7 +216,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/weight ";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return Integer.MIN_VALUE;
@@ -228,7 +231,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private boolean isHidden(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/hidden ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return false;
@@ -249,7 +252,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 			return false;
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/typelabel ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return false;
@@ -271,7 +274,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/optional ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty()) {
 			return false;
@@ -291,7 +294,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private boolean isCreateNew(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/createnew ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty()) {
 			return false;
@@ -311,7 +314,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private int getRows(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/rows ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return 1;
@@ -336,7 +339,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private String getLabel(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/label ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return null;
@@ -351,7 +354,7 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private String getDescription(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/description ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return null;
@@ -366,8 +369,8 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	 * @return the value of card-max or <code>"0"</code>
 	 */
 	private String getCardMin(Topic topic) {
-		String queryString = "RETURN " + getTMQLIdentifierString(topic) + " / tmcl:card-min ";
-		IQuery q = runtime.run(queryString);
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/ RETURN " + getTMQLIdentifierString(topic) + " / tmcl:card-min ";
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return "0";

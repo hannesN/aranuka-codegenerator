@@ -56,14 +56,12 @@ import de.topicmapslab.codegenerator.descriptors.genny.ModelContentProviderDescr
 import de.topicmapslab.codegenerator.descriptors.genny.ModelHandlerDescriptor;
 import de.topicmapslab.codegenerator.utils.TMQLPreperator;
 import de.topicmapslab.codegenerator.utils.TypeUtility;
-import de.topicmapslab.tmql4j.common.context.TMQLRuntimeProperties;
-import de.topicmapslab.tmql4j.common.core.runtime.TMQLRuntimeFactory;
-import de.topicmapslab.tmql4j.common.model.query.IQuery;
-import de.topicmapslab.tmql4j.common.model.runtime.ITMQLRuntime;
-import de.topicmapslab.tmql4j.resultprocessing.core.simple.SimpleResultSet;
-import de.topicmapslab.tmql4j.resultprocessing.core.simple.SimpleTupleResult;
-import de.topicmapslab.tmql4j.resultprocessing.model.IResult;
-import de.topicmapslab.tmql4j.resultprocessing.model.IResultSet;
+import de.topicmapslab.tmql4j.components.processor.results.model.IResult;
+import de.topicmapslab.tmql4j.components.processor.results.model.IResultSet;
+import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
+import de.topicmapslab.tmql4j.components.processor.runtime.TMQLRuntimeFactory;
+import de.topicmapslab.tmql4j.path.components.processor.runtime.TmqlRuntime2007;
+import de.topicmapslab.tmql4j.query.IQuery;
 
 /**
  * @author Hannes Niederhausen
@@ -88,6 +86,8 @@ public class AranukaDescriptorFactory {
 	private Map<String, ClassDescriptor> classesMap;
 
 	private Map<Topic, ClassDescriptor> parsedTopics = new HashMap<Topic, ClassDescriptor>();
+
+	private TopicMap topicMap;
 
 	/**
 	 * Constructor
@@ -118,11 +118,8 @@ public class AranukaDescriptorFactory {
 	 */
 	public AranukaDescriptorFactory(TopicMapSystem tms, TopicMap tm, String packageName, boolean createGennyClasses,
 	        boolean createKuriaAnnotation) throws TMAPIException, IOException, IllegalSchemaException {
-		runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, tm);
-		runtime.getProperties().setProperty(TMQLRuntimeProperties.RESULT_SET_IMPLEMENTATION_CLASS,
-		        SimpleResultSet.class.getName());
-		runtime.getProperties().setProperty(TMQLRuntimeProperties.RESULT_TUPLE_IMPLEMENTATION_CLASS,
-		        SimpleTupleResult.class.getName());
+		runtime = TMQLRuntimeFactory.newFactory().newRuntime(tms, TmqlRuntime2007.TMQL_2007);
+		this.topicMap = tm;
 		this.createGennyClasses = createGennyClasses;
 		this.createKuriaAnnotation = createKuriaAnnotation;
 		init(packageName);
@@ -155,9 +152,9 @@ public class AranukaDescriptorFactory {
 			return parsedTopics.get(t);
 
 		
-		String queryString = "FOR $t IN // tmcl:topic-type [ .  == " +getTMQLIdentifierString(t)+ " ] "
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $t IN // tmcl:topic-type [ .  == " +getTMQLIdentifierString(t)+ " ] "
 	        + "RETURN $t, $t >> characteristics  tm:name >> atomify[0], $t >> indicators >> atomify[0]";
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 		
 		IResult r = query.getResults().get(0);
 		
@@ -193,7 +190,7 @@ public class AranukaDescriptorFactory {
     	pkgDescriptor.setName(packageName);
     
     	if ((createKuriaAnnotation) || (createGennyClasses)) {
-    		kuriaFactory = new KuriaDescriptorFactory(runtime);
+    		kuriaFactory = new KuriaDescriptorFactory(runtime, topicMap);
     	} else {
     		kuriaFactory = new IKuriaDescriptorFactory() {
     
@@ -224,9 +221,9 @@ public class AranukaDescriptorFactory {
     }
 
 	private void parseTopicTypes() throws IllegalSchemaException {
-    	String queryString = "FOR $t IN // tmcl:topic-type [ . != http://onotoa.topicmapslab.de/annotation ] "
+    	String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/ FOR $t IN // tmcl:topic-type [ . != http://onotoa.topicmapslab.de/annotation ] "
     	        + "RETURN $t";
-    	IQuery query = runtime.run(queryString);
+    	IQuery query = runtime.run(topicMap, queryString);
     
     	for (IResult r : query.getResults()) {
     		Topic t = (Topic) r.get(0);
@@ -244,7 +241,7 @@ public class AranukaDescriptorFactory {
     
     	String queryString = "RETURN   http://onotoa.topicmapslab.de/schemareifier /  http://onotoa.topicmapslab.de/annotation/de/topicmapslab/genny/category";
     
-    	IQuery query = runtime.run(queryString);
+    	IQuery query = runtime.run(topicMap, queryString);
     
     	String name = null;
     	if (query.getResults().isEmpty()) {
@@ -291,7 +288,7 @@ public class AranukaDescriptorFactory {
 		        + " >> supertypes >> characteristics tm:name >> atomify[0], "
 		        + getTMQLIdentifierString(topic)
 		        + " >> supertypes [0]";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 		if (!q.getResults().isEmpty()) {
 			// XXX SVEN why  empty tuples??
 			if (q.getResults().get(0, 0)  instanceof String) {
@@ -393,10 +390,10 @@ public class AranukaDescriptorFactory {
 			break;
 		}
 
-		String queryString = "FOR $c IN // " + constraintName + " [ . >> traverse tmcl:constrained-topic-type == " + si
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // " + constraintName + " [ . >> traverse tmcl:constrained-topic-type == " + si
 		        + " ] " + "RETURN $c / tmcl:card-max , $c";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return;
@@ -432,14 +429,14 @@ public class AranukaDescriptorFactory {
 	}
 
 	private void generateNameConstraints(ClassDescriptor cd, String si) throws IllegalSchemaException {
-		String queryString = "FOR $c IN //  tmcl:topic-name-constraint"
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN //  tmcl:topic-name-constraint"
 		        + " [ . >> traverse tmcl:constrained-topic-type == " + si + " ] "
 		        + "ORDER BY $c >> traverse tmcl:constrained-statement >> characteristics tm:name >> atomify [0] "
 		        + "RETURN ( $c / tmcl:card-max, "
 		        + "$c >> traverse tmcl:constrained-statement >> characteristics tm:name >> atomify [0] || \"name\", "
 		        + "$c >> traverse tmcl:constrained-statement >> indicators >> atomify [0] || \"none\", $c )";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		for (IResult r : q.getResults()) {
 			if ("none".equals(r.get(2))) {
@@ -474,14 +471,14 @@ public class AranukaDescriptorFactory {
 	}
 
 	private void generateOccurrenceConstraints(ClassDescriptor cd, String si) throws IllegalSchemaException {
-		String queryString = "FOR $c IN //  tmcl:topic-occurrence-constraint"
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/ FOR $c IN //  tmcl:topic-occurrence-constraint"
 		        + " [ . >> traverse tmcl:constrained-topic-type == " + si + " ] "
 		        + "ORDER BY $c >> traverse tmcl:constrained-statement >> characteristics tm:name >> atomify [0] "
 		        + "RETURN ( $c / tmcl:card-max, "
 		        + "$c >> traverse tmcl:constrained-statement >> characteristics tm:name >> atomify [0] || \"name\", "
 		        + "$c >> traverse tmcl:constrained-statement >> indicators >> atomify [0] , $c)";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		for (IResult r : q.getResults()) {
 			Topic toc = (Topic) r.get(3);
@@ -519,10 +516,10 @@ public class AranukaDescriptorFactory {
 	}
 
 	private String getOccurrenceDatatype(String occTypeSi) {
-		String queryString = "FOR $c IN //  tmcl:occurrence-datatype-constraint "
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/ FOR $c IN //  tmcl:occurrence-datatype-constraint "
 		        + "[ . >> traverse tmcl:constrained-statement == " + occTypeSi + "] " + "RETURN $c / tmcl:datatype";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		for (IResult r : q.getResults()) {
 			return (String) r.getResults().get(0);
@@ -537,7 +534,7 @@ public class AranukaDescriptorFactory {
 	 */
 	private void generateAssociationConstraints(ClassDescriptor cd, String si) throws IllegalSchemaException {
 		// get
-		String queryString = "%PREFIX ara http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/\n"
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  %prefix ara http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/\n"
 		        + " FOR $c IN // tmcl:topic-role-constraint"
 		        // +
 		        // " [  ( . / ara:generateattribute =~ \"true\" ) OR  fn:count ( . / ara:generateattribute) == 0 ]\n"
@@ -548,7 +545,7 @@ public class AranukaDescriptorFactory {
 		        + " $c >> traverse tmcl:constrained-statement / tm:name, "
 		        + " $c >> traverse tmcl:constrained-role / tm:name";
 
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 
 		for (IResult result : query.getResults()) {
 			String assocTypeSi = (String) result.get(0);
@@ -558,9 +555,9 @@ public class AranukaDescriptorFactory {
 			addNameMapEntry(assocTypeSi, (String) result.get(3));
 			addNameMapEntry(roleTypeSi, (String) result.get(4));
 
-			queryString = "RETURN fn:count( // tmcl:topic-role-constraint "
+			queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  RETURN fn:count( // tmcl:topic-role-constraint "
 			        + " [ . >>  traverse tmcl:constrained-statement == " + assocTypeSi + " ] )";
-			IQuery query2 = runtime.run(queryString);
+			IQuery query2 = runtime.run(topicMap, queryString);
 
 			BigInteger resultValue = query2.getResults().get(0, 0);
 
@@ -590,17 +587,17 @@ public class AranukaDescriptorFactory {
 	 */
 	private void createOneRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi) {
 
-		String queryString = "FOR $c IN // tmcl:association-role-constraint "
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:association-role-constraint "
 		        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi + " ] " + "RETURN $c / tmcl:card-max ";
 
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 		int cardMax = getCardMax(query.getResults());
 
-		queryString = "FOR $c IN // tmcl:topic-role-constraint " + "[ . >> traverse tmcl:constrained-statement == "
+		queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint " + "[ . >> traverse tmcl:constrained-statement == "
 		        + assocTypeSi + " ] " + "RETURN $c / tmcl:card-max, $c";
 		// second result is used to get annotations :)
 
-		query = runtime.run(queryString);
+		query = runtime.run(topicMap, queryString);
 
 		Topic topicRoleConstr = query.getResults().get(0, 1);
 		if (!isCreateFieldAllowed(topicRoleConstr))
@@ -683,28 +680,28 @@ public class AranukaDescriptorFactory {
 	 */
 	private void createTwoRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi,
 	        Topic topicRoleConstraint) throws IllegalSchemaException {
-		String queryString = "FOR $c IN // tmcl:association-role-constraint "
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:association-role-constraint "
 		        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi + "  "
 		        + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
 		        + "RETURN $c / tmcl:card-max, " + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0]";
 
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 
 		int cardMax = getCardMax(query.getResults());
 		String otherPlayerRole = query.getResults().get(0, 1);
 
 		Topic player = getOtherPlayer(assocTypeSi, otherPlayerRole);
 
-		queryString = "RETURN " + getTMQLIdentifierString(topicRoleConstraint) + " " + " / tmcl:card-max";
-		IQuery q2 = runtime.run(queryString);
+		queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  RETURN " + getTMQLIdentifierString(topicRoleConstraint) + " " + " / tmcl:card-max";
+		IQuery q2 = runtime.run(topicMap, queryString);
 		boolean isMany = isMany(q2.getResults());
 
-		queryString = "FOR $c IN // tmcl:topic-role-constraint " + "[ . >> traverse tmcl:constrained-statement == "
+		queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint " + "[ . >> traverse tmcl:constrained-statement == "
 		        + assocTypeSi + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
 		        + "RETURN $c";
 		// second result is used to get annotations s :)
 
-		q2 = runtime.run(queryString);
+		q2 = runtime.run(topicMap, queryString);
 		Topic otherTopicRoleConstr = (Topic) q2.getResults().get(0, 0);
 		if (!isCreateFieldAllowed(otherTopicRoleConstr))
 			return;
@@ -766,7 +763,7 @@ public class AranukaDescriptorFactory {
             IQuery query) throws IllegalSchemaException {
 //	    for (@SuppressWarnings("unused") IResult r : query.getResults()) {
 
-	    	String queryString = "FOR $c IN // tmcl:topic-role-constraint "
+	    	String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint "
 	    	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
 	    	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
 	    	        + "RETURN $c / tmcl:card-max, "
@@ -775,7 +772,7 @@ public class AranukaDescriptorFactory {
 	    	        + "$c >> traverse tmcl:constrained-topic-type / tm:name [0], $c, "
 	    	        + "$c >> traverse tmcl:constrained-topic-type [0] ";
 
-	    	IQuery q2 = runtime.run(queryString);
+	    	IQuery q2 = runtime.run(topicMap, queryString);
 
 	    	for (IResult r2 : q2.getResults()) {
 	    		boolean isMany = isMany(q2.getResults());
@@ -861,14 +858,14 @@ public class AranukaDescriptorFactory {
      */
     private void createNRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi,
             String topicSI) throws IllegalSchemaException {
-    	String queryString = "FOR $c IN // tmcl:association-role-constraint "
+    	String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:association-role-constraint "
     	        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi
     	        + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
     	        + "RETURN $c / tmcl:card-max, " 
     	        + "$c >> traverse tmcl:constrained-role >> indicators >> atomify [0], "
     	        + "$c / tmcl:card-min ";
     
-    	IQuery query = runtime.run(queryString);
+    	IQuery query = runtime.run(topicMap, queryString);
     
     	if (roleCombinationConstraintExists(assocTypeSi)) {
     		// create n binary fields
@@ -890,7 +887,7 @@ public class AranukaDescriptorFactory {
     			String cardMin = roleResult.get(2);
     			
     			// create fields for the association container:
-    			queryString = "FOR $c IN // tmcl:topic-role-constraint "
+    			queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint "
         	        + "[ . >> traverse tmcl:constrained-statement == " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
         	        + " AND (. >> traverse tmcl:constrained-role == " + getIdentifierString(roleSI, IdType.SUBJECT_IDENTIFIER) + " ) "
         	        + " AND NOT ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
@@ -901,7 +898,7 @@ public class AranukaDescriptorFactory {
         	        + "$c, "
         	        + "$c >> traverse tmcl:constrained-topic-type [0] ";
     			
-    			IQuery q2 = runtime.run(queryString);
+    			IQuery q2 = runtime.run(topicMap, queryString);
     			
     			for (IResult r : q2.getResults()) {
     				// check if we have the right amount of results
@@ -954,12 +951,12 @@ public class AranukaDescriptorFactory {
     		// get cardinality of the topic-role constraint of the topic represented by this class descriptor
     		
     		// create fields for the association container:
-    		queryString = "FOR $c IN // tmcl:topic-role-constraint "
+    		queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint "
     	        + "[ . >> traverse tmcl:constrained-statement ==  " + getIdentifierString(assocTypeSi, IdType.SUBJECT_IDENTIFIER)
     	        + " AND (. >> traverse tmcl:constrained-role ==  " + getIdentifierString(roleTypeSi, IdType.SUBJECT_IDENTIFIER) + " ) "
     	        + " AND ( . >> traverse tmcl:constrained-topic-type == " + topicSI + " ) ] "
     	        + "RETURN $c / tmcl:card-max, $c";
-    		IQuery q2 = runtime.run(queryString);
+    		IQuery q2 = runtime.run(topicMap, queryString);
     		fd.setMany(isMany(q2.getResults()));
     		
     		for (FieldDescriptor fieldDescriptor : assocCD.getFields()) {
@@ -992,7 +989,7 @@ public class AranukaDescriptorFactory {
 	 */
 	private boolean roleCombinationConstraintExists(String assocType, String topicType, String roleType,
 	        String otherPlayer, String otherRole) {
-		String queryString = "FOR $c IN // tmcl:role-combination-constraint \n"
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:role-combination-constraint \n"
 		        + " [ . >> traverse tmcl:constrained-statement == "
 		        + assocType
 		        + " AND "
@@ -1020,7 +1017,7 @@ public class AranukaDescriptorFactory {
 		        + " AND\n"
 		        + " . >> traverse tmcl:other-constrained-topic-type == " + topicType + ") ]" + "RETURN $c";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		// if we get a result we now theres is a constraint
 		return !q.getResults().isEmpty();
@@ -1036,10 +1033,10 @@ public class AranukaDescriptorFactory {
 	 *         constraint; <code>false</code> else
 	 */
 	private boolean roleCombinationConstraintExists(String assocType) {
-		String queryString = "FOR $c IN // tmcl:role-combination-constraint \n"
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:role-combination-constraint \n"
 		        + " [ . >> traverse tmcl:constrained-statement == " + assocType + "]" + " RETURN $c";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		return !q.getResults().isEmpty();
 	}
@@ -1087,7 +1084,7 @@ public class AranukaDescriptorFactory {
 		String queryString = "RETURN " + getTMQLIdentifierString(constraint) + " "
 		        + "/ http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/generateattribute ";
 
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 		if (q.getResults().isEmpty())
 			return true;
 		else {
@@ -1108,11 +1105,11 @@ public class AranukaDescriptorFactory {
 	private Topic getOtherPlayer(String assocTypeSi, String otherPlayerRole) {
 		String queryString;
 		IQuery query;
-		queryString = "FOR $c IN  // tmcl:topic-role-constraint " + " [ . >>  traverse tmcl:constrained-statement == "
+		queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN  // tmcl:topic-role-constraint " + " [ . >>  traverse tmcl:constrained-statement == "
 		        + assocTypeSi + " AND . >> traverse tmcl:constrained-role == " + getIdentifierString(otherPlayerRole, IdType.SUBJECT_IDENTIFIER) + " ] "
 		        + "RETURN $c >> traverse tmcl:constrained-topic-type ";
 
-		query = runtime.run(queryString);
+		query = runtime.run(topicMap, queryString);
 
 		if (query.getResults().isEmpty()) {
 			throw new IllegalArgumentException("assoc has no counter player");
@@ -1126,10 +1123,10 @@ public class AranukaDescriptorFactory {
 	 * @return
 	 */
 	private String getClassName(String si) {
-		String queryString = "RETURN " + si
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/ RETURN " + si
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/name ";
 
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 		if (query.getResults().isEmpty())
 			return null;
 
@@ -1140,7 +1137,7 @@ public class AranukaDescriptorFactory {
 		String queryString = "RETURN " + getTMQLIdentifierString(constraint)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/name ";
 
-		IQuery query = runtime.run(queryString);
+		IQuery query = runtime.run(topicMap, queryString);
 		if (query.getResults().isEmpty())
 			return null;
 
@@ -1154,7 +1151,7 @@ public class AranukaDescriptorFactory {
      * @return
      */
     private Topic getTopic(String si) {
-        return runtime.run(si).getResults().get(0, 0);
+        return runtime.run(topicMap, si).getResults().get(0, 0);
     }
 
 	/**
@@ -1162,7 +1159,7 @@ public class AranukaDescriptorFactory {
 	 * @return
 	 */
 	private String getName(String si) {
-		IQuery q = runtime.run("RETURN " + si + " / tm:name[0]");
+		IQuery q = runtime.run(topicMap, "RETURN " + si + " / tm:name[0]");
 
 		if (q.getResults().isEmpty())
 			throw new RuntimeException("Topic with si: " + si + "has no name!");
@@ -1200,7 +1197,7 @@ public class AranukaDescriptorFactory {
 		if (isAbstract(t))
 			return;
 		
-		IQuery q = runtime.run("RETURN " + getTMQLIdentifierString(t)
+		IQuery q = runtime.run(topicMap, "RETURN " + getTMQLIdentifierString(t)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/genny/category");
 
 		if (!q.getResults().isEmpty()) {
@@ -1233,7 +1230,7 @@ public class AranukaDescriptorFactory {
 	private boolean isGenerated(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/aranuka/autogenerate ";
-		IQuery q = runtime.run(queryString);
+		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
 			return false;
@@ -1252,8 +1249,8 @@ public class AranukaDescriptorFactory {
 	 * @return
 	 */
 	private boolean isAbstract(Topic topic) {
-		String queryString = " SELECT " +getTMQLIdentifierString(topic)+ " >> traverse  tmcl:constrained-topic-type [ . >> types == tmcl:abstract-constraint ] ";
-		IQuery q = runtime.run(queryString);
+		String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  SELECT " +getTMQLIdentifierString(topic)+ " >> traverse  tmcl:constrained-topic-type [ . >> types == tmcl:abstract-constraint ] ";
+		IQuery q = runtime.run(topicMap, queryString);
 
 		return !q.getResults().isEmpty();
 

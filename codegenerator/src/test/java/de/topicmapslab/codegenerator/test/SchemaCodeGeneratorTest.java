@@ -23,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 
 import de.topicmapslab.codegenerator.CodeGenerator;
 import de.topicmapslab.codegenerator.CodeGeneratorException;
