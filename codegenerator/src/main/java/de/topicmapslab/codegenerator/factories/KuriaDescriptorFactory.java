@@ -28,6 +28,7 @@ import de.topicmapslab.aranuka.annotations.Occurrence;
 import de.topicmapslab.codegenerator.descriptors.AbstractAttributeDescriptor;
 import de.topicmapslab.codegenerator.descriptors.AnnotationDescriptor;
 import de.topicmapslab.codegenerator.descriptors.ClassDescriptor;
+import de.topicmapslab.codegenerator.descriptors.EnumerationAttributeDescriptor;
 import de.topicmapslab.codegenerator.descriptors.FieldDescriptor;
 import de.topicmapslab.codegenerator.descriptors.PrimitiveAttributeDescriptor;
 import de.topicmapslab.codegenerator.utils.DescriptorUtil;
@@ -39,6 +40,7 @@ import de.topicmapslab.kuria.annotation.widgets.Group;
 import de.topicmapslab.kuria.annotation.widgets.Hidden;
 import de.topicmapslab.kuria.annotation.widgets.List;
 import de.topicmapslab.kuria.annotation.widgets.TextField;
+import de.topicmapslab.kuria.runtime.widget.ListStyle;
 import de.topicmapslab.tmql4j.components.processor.runtime.ITMQLRuntime;
 import de.topicmapslab.tmql4j.query.IQuery;
 
@@ -100,7 +102,15 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 					pad.setName("rows");
 					pad.setValue(rows);
 				}
+			} else if (annoClass==List.class) {
+				String ls = getListStyle(topic);
+				EnumerationAttributeDescriptor ead = new EnumerationAttributeDescriptor(ad);
+				ead.setEnumerationType(ListStyle.class.getName());
+				ead.setName("style");
+				ead.setValue(ls);
 			}
+			
+			
 
 			String label = getLabel(topic);
 			if (label != null) {
@@ -354,6 +364,21 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 	private String getDescription(Topic topic) {
 		String queryString = "RETURN " + getTMQLIdentifierString(topic)
 		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/description ";
+		IQuery q = runtime.run(topicMap, queryString);
+
+		if (q.getResults().isEmpty())
+			return null;
+
+		return q.getResults().get(0, 0);
+	}
+	
+	/**
+	 * @param topic
+	 * @return
+	 */
+	private String getListStyle(Topic topic) {
+		String queryString = "RETURN " + getTMQLIdentifierString(topic)
+		        + " / http://onotoa.topicmapslab.de/annotation/de/topicmapslab/kuria/liststyle ";
 		IQuery q = runtime.run(topicMap, queryString);
 
 		if (q.getResults().isEmpty())
