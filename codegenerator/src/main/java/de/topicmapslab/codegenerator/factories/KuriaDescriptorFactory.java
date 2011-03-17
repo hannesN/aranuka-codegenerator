@@ -104,10 +104,12 @@ class KuriaDescriptorFactory implements IKuriaDescriptorFactory {
 				}
 			} else if (annoClass==List.class) {
 				String ls = getListStyle(topic);
-				EnumerationAttributeDescriptor ead = new EnumerationAttributeDescriptor(ad);
-				ead.setEnumerationType(ListStyle.class.getName());
-				ead.setName("style");
-				ead.setValue(ls);
+				if (ls!=null) {
+					EnumerationAttributeDescriptor ead = new EnumerationAttributeDescriptor(ad);
+					ead.setEnumerationType(ListStyle.class.getName());
+					ead.setName("style");
+					ead.setValue(ls);
+				}
 			}
 			
 			

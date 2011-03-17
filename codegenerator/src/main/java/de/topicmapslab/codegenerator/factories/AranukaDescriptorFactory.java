@@ -569,7 +569,7 @@ public class AranukaDescriptorFactory {
 				createTwoRoleTypeAssociationField(cd, assocTypeSi, roleTypeSi, topicRoleConstraint);
 				break;
 			default:
-				createNRoleTypeAssociationField(cd, assocTypeSi, roleTypeSi, si);
+				createNRoleTypeAssociationField(cd, assocTypeSi, roleTypeSi, si, topicRoleConstraint);
 			}
 
 		}
@@ -756,11 +756,12 @@ public class AranukaDescriptorFactory {
      * @param roleTypeSi the role-type identifier of the topic represented by the class
      * @param topicSI the subject identifier of the topic represented by the class
      * @param query the query which contains the list of roles
+	 * @param topicRoleConstraint 
      * @throws IllegalSchemaException
      */
 	// TODO recode?
     protected void createBinaryAssociations(ClassDescriptor cd, String assocTypeSi, String roleTypeSi, String topicSI,
-            IQuery query) throws IllegalSchemaException {
+            IQuery query, Topic topicRoleConstraint) throws IllegalSchemaException {
 //	    for (@SuppressWarnings("unused") IResult r : query.getResults()) {
 
 	    	String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:topic-role-constraint "
@@ -774,8 +775,13 @@ public class AranukaDescriptorFactory {
 
 	    	IQuery q2 = runtime.run(topicMap, queryString);
 
+	    	// getting card max for the players role
+			queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  RETURN " + getTMQLIdentifierString(topicRoleConstraint) + " " + " / tmcl:card-max";
+			IQuery q3 = runtime.run(topicMap, queryString);
+			boolean isMany = isMany(q3.getResults());
+	    	
 	    	for (IResult r2 : q2.getResults()) {
-	    		boolean isMany = isMany(q2.getResults());
+	    		
 
 	    		String roleSi = (String) r2.get(1);
 	    		String playerSi = (String) r2.get(2);
@@ -854,10 +860,11 @@ public class AranukaDescriptorFactory {
      * @param cd
      * @param assocTypeSi
      * @param roleTypeSi
+	 * @param topicRoleConstraint 
      * @throws IllegalSchemaException
      */
     private void createNRoleTypeAssociationField(ClassDescriptor cd, String assocTypeSi, String roleTypeSi,
-            String topicSI) throws IllegalSchemaException {
+            String topicSI, Topic topicRoleConstraint) throws IllegalSchemaException {
     	String queryString = "%prefix tmcl http://psi.topicmaps.org/tmcl/  FOR $c IN // tmcl:association-role-constraint "
     	        + "[ . >> traverse tmcl:constrained-statement == " + assocTypeSi
     	        + " AND NOT ( . >> traverse tmcl:constrained-role == " + roleTypeSi + " ) ] "
@@ -869,7 +876,7 @@ public class AranukaDescriptorFactory {
     
     	if (roleCombinationConstraintExists(assocTypeSi)) {
     		// create n binary fields
-    		createBinaryAssociations(cd, assocTypeSi, roleTypeSi, topicSI, query);
+    		createBinaryAssociations(cd, assocTypeSi, roleTypeSi, topicSI, query, topicRoleConstraint);
     	} else {
     		// create association container
     		ClassDescriptor assocCD = new ClassDescriptor(cd);
