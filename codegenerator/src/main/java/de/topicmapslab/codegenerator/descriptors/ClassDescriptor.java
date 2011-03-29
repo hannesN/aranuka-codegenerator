@@ -31,6 +31,7 @@ import com.sun.codemodel.JConditional;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JFieldRef;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
@@ -365,7 +366,7 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
      * @param clazz
      * @param cm
      */
-    private void generateHashCodeMethod(JDefinedClass clazz, JCodeModel cm) {
+    private void generateEqualsMethod(JDefinedClass clazz, JCodeModel cm) {
     	JMethod method = clazz.method(JMod.PUBLIC, cm.BOOLEAN, "equals");
     	JVar p = method.param(Object.class, "obj");
     	
@@ -376,7 +377,8 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
     	method.body()._if(p.eq(JExpr._null()))._then()._return(JExpr.FALSE);
     	
     	// if (getClass() != obj.getClass())
-    	method.body()._if(JExpr._this().invoke("getClass").ne(p.invoke("getClass")))._then()._return(JExpr.FALSE);
+    	JInvocation ifClause =  JExpr._this().invoke("getClass").invoke("isAssignableFrom").arg(p.invoke("getClass"));
+		method.body()._if(ifClause.not())._then()._return(JExpr.FALSE);
     	
     	// create temp var
     	JVar castedObj = method.body().decl(clazz, "other", JExpr.cast(clazz, p));
@@ -399,7 +401,7 @@ public class ClassDescriptor extends AbstractModifiedDescriptor implements IAnno
      * @param clazz
      * @param cm
      */
-    private void generateEqualsMethod(JDefinedClass clazz, JCodeModel cm) {
+    private void generateHashCodeMethod(JDefinedClass clazz, JCodeModel cm) {
     	final String line = "result = prime * result + ((this.{0} == null) ? 0 : this.{0}.hashCode());";
     	
     	JMethod method = clazz.method(JMod.PUBLIC, cm.INT, "hashCode");
