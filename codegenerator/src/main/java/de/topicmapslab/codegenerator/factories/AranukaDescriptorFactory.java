@@ -1119,7 +1119,7 @@ public class AranukaDescriptorFactory {
 		query = runtime.run(topicMap, queryString);
 
 		if (query.getResults().isEmpty()) {
-			throw new IllegalArgumentException("assoc has no counter player");
+			throw new IllegalArgumentException("association "+assocTypeSi+" has no counter player for role: "+otherPlayerRole);
 		}
 
 		return query.getResults().get(0, 0);
